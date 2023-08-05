@@ -16,8 +16,6 @@ func setupTests(t *testing.T) (*gorm.DB, func(t *testing.T)) {
 		panic("failed to connect database")
 	}
 
-	t.Setenv("JWT_PRIVATE_KEY", "private_key")
-
 	db.AutoMigrate(&models.User{})
 	db.Create(&models.User{Username: "user1", Email: "user1@email.com", Password: "$2a$04$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm"})
 
@@ -33,7 +31,7 @@ func Test_WhenLoginRequestContainsEmailThatIsNotRegistered_ThenReturnErrEmailPas
 	gormDB, teardownTestCase := setupTests(t)
 	defer teardownTestCase(t)
 
-	authService := NewAuthService(gormDB)
+	authService := NewAuthService(gormDB, "private_key")
 	loginRequest := &request.LoginRequest{
 		Email:    "user2@email.com",
 		Password: "password",
@@ -48,7 +46,7 @@ func Test_WhenLoginRequestContainsInvalidPasswordForAUser_ThenReturnErrEmailPass
 	gormDB, teardownTestCase := setupTests(t)
 	defer teardownTestCase(t)
 
-	authService := NewAuthService(gormDB)
+	authService := NewAuthService(gormDB, "private_key")
 	loginRequest := &request.LoginRequest{
 		Email:    "user1@email.com",
 		Password: "pass",
@@ -63,7 +61,7 @@ func Test_WhenLoginRequestIsValid_ThenReturnLoginResponse(t *testing.T) {
 	gormDB, teardownTestCase := setupTests(t)
 	defer teardownTestCase(t)
 
-	authService := NewAuthService(gormDB)
+	authService := NewAuthService(gormDB, "private_key")
 	loginRequest := &request.LoginRequest{
 		Email:    "user1@email.com",
 		Password: "password",

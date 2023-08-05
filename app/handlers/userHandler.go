@@ -30,7 +30,7 @@ func (h *UserHandler) CreateUser(context *gin.Context) {
 	}
 
 	createUserErr := h.userService.CreateUser(createUserRequest)
-	if err != nil {
+	if createUserErr != nil {
 		utils.ReturnError(context, createUserErr)
 		return
 	}

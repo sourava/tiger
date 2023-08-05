@@ -1,7 +1,7 @@
 package service
 
 import (
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/sourava/tiger/app/middlewares"
 	"github.com/sourava/tiger/business/auth/request"
 	"github.com/sourava/tiger/business/auth/response"
 	"github.com/sourava/tiger/business/user/models"
@@ -9,8 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"net/http"
-	"os"
-	"time"
 )
 
 var (
@@ -19,18 +17,20 @@ var (
 )
 
 type AuthService struct {
-	DB *gorm.DB
+	db        *gorm.DB
+	jwtSecret string
 }
 
-func NewAuthService(db *gorm.DB) *AuthService {
+func NewAuthService(db *gorm.DB, jwtSecret string) *AuthService {
 	return &AuthService{
-		DB: db,
+		db:        db,
+		jwtSecret: jwtSecret,
 	}
 }
 
 func (service *AuthService) Login(request *request.LoginRequest) (*response.LoginResponse, *customErrors.CustomError) {
 	var user models.User
-	record := service.DB.Where("email = ?", request.Email).First(&user)
+	record := service.db.Where("email = ?", request.Email).First(&user)
 	if record.Error != nil {
 		if record.Error.Error() == "record not found" {
 			return nil, ErrEmailPasswordMismatch
@@ -43,7 +43,7 @@ func (service *AuthService) Login(request *request.LoginRequest) (*response.Logi
 		return nil, ErrEmailPasswordMismatch
 	}
 
-	tokenString, err := generateToken(user.Email, user.Username)
+	tokenString, err := middlewares.GenerateToken(user.Email, user.Username, service.jwtSecret)
 	if err != nil {
 		return nil, ErrGeneratingToken
 	}
@@ -59,18 +59,4 @@ func comparePassword(providedPassword string, hashedPassword string) error {
 		return err
 	}
 	return nil
-}
-
-func generateToken(email string, username string) (string, error) {
-	var jwtKey = []byte(os.Getenv("JWT_PRIVATE_KEY"))
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &request.JWTClaim{
-		Email:    email,
-		Username: username,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
 }
