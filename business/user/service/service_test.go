@@ -39,7 +39,7 @@ func Test_WhenCreateUserRequestContainsEmptyParams_ThenReturnErrCreateUserReques
 	err := userService.CreateUser(createUserRequest)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "error create user request contains empty username, email or password", err.Error())
+	assert.Equal(t, "error request contains empty username, email or password", err.Error())
 }
 
 func Test_WhenCreateUserRequestContainsInvalidEmail_ThenReturnError(t *testing.T) {
@@ -55,6 +55,7 @@ func Test_WhenCreateUserRequestContainsInvalidEmail_ThenReturnError(t *testing.T
 	err := userService.CreateUser(createUserRequest)
 
 	assert.NotNil(t, err)
+	assert.Equal(t, "error request contains invalid email", err.Error())
 }
 
 func Test_WhenCreateUserRequestIsValid_ThenShouldCreateUser(t *testing.T) {

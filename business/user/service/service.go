@@ -1,16 +1,19 @@
 package service
 
 import (
-	"errors"
 	"github.com/sourava/tiger/business/user/models"
 	"github.com/sourava/tiger/business/user/request"
+	"github.com/sourava/tiger/external/customErrors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"net/http"
 	"net/mail"
 )
 
 var (
-	ErrCreateUserRequestContainsEmptyParams error = errors.New("error create user request contains empty username, email or password")
+	ErrEmptyParams     = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains empty username, email or password")
+	ErrInvalidEmail    = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid email")
+	ErrHashingPassword = customErrors.NewWithMessage(http.StatusBadRequest, "error while hashing password")
 )
 
 type UserService struct {
@@ -23,7 +26,7 @@ func NewUserService(db *gorm.DB) *UserService {
 	}
 }
 
-func (service *UserService) CreateUser(request *request.CreateUserRequest) error {
+func (service *UserService) CreateUser(request *request.CreateUserRequest) *customErrors.CustomError {
 	err := validateCreateUserRequest(request)
 	if err != nil {
 		return err
@@ -41,30 +44,33 @@ func (service *UserService) CreateUser(request *request.CreateUserRequest) error
 	}
 	result := service.DB.Create(&user)
 	if result.Error != nil {
-		return result.Error
+		return customErrors.NewWithErr(http.StatusBadRequest, result.Error)
 	}
 
 	return nil
 }
 
-func hashPassword(password string) (string, error) {
+func hashPassword(password string) (string, *customErrors.CustomError) {
 	// Convert password string to byte slice
 	var passwordBytes = []byte(password)
 
 	// Hash password with bcrypt's min cost
 	hashedPasswordBytes, err := bcrypt.GenerateFromPassword(passwordBytes, bcrypt.MinCost)
+	if err != nil {
+		return "", ErrHashingPassword
+	}
 
-	return string(hashedPasswordBytes), err
+	return string(hashedPasswordBytes), nil
 }
 
-func validateCreateUserRequest(userRequest *request.CreateUserRequest) error {
+func validateCreateUserRequest(userRequest *request.CreateUserRequest) *customErrors.CustomError {
 	if userRequest.Username == "" || userRequest.Email == "" || userRequest.Password == "" {
-		return ErrCreateUserRequestContainsEmptyParams
+		return ErrEmptyParams
 	}
 
 	_, err := mail.ParseAddress(userRequest.Email)
 	if err != nil {
-		return err
+		return ErrInvalidEmail
 	}
 
 	return nil

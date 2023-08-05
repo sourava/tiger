@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"github.com/sourava/tiger/app/handlers"
+	"github.com/sourava/tiger/business/user/models"
+	"github.com/sourava/tiger/business/user/service"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"net/http"
 	"os"
 )
 
@@ -19,11 +21,12 @@ func main() {
 	}
 	log.Info("database connected successfully", db)
 
+	db.AutoMigrate(&models.User{})
+
+	userService := service.NewUserService(db)
+	userHandler := handlers.NewUserHandler(userService)
+
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	r.POST("/user", userHandler.CreateUser)
 	r.Run()
 }
