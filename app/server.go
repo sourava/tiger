@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/sourava/tiger/app/handlers"
+	service2 "github.com/sourava/tiger/business/auth/service"
 	"github.com/sourava/tiger/business/user/models"
 	"github.com/sourava/tiger/business/user/service"
 	"gorm.io/driver/mysql"
@@ -26,7 +27,11 @@ func main() {
 	userService := service.NewUserService(db)
 	userHandler := handlers.NewUserHandler(userService)
 
+	authService := service2.NewAuthService(db)
+	authHandler := handlers.NewAuthHandler(authService)
+
 	r := gin.Default()
 	r.POST("/user", userHandler.CreateUser)
+	r.POST("/login", authHandler.Login)
 	r.Run()
 }
