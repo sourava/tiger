@@ -20,6 +20,7 @@ func setupTests() (*gorm.DB, *request2.JWTClaim, func(t *testing.T)) {
 
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models2.Tiger{})
+	db.AutoMigrate(&models2.TigerSighting{})
 	db.Create(&models.User{Username: "user1", Email: "user1@email.com", Password: "$2a$04$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm"})
 
 	claims := &request2.JWTClaim{
@@ -202,4 +203,106 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigersInCorrectOrder(t *te
 	assert.Nil(t, err)
 	assert.Equal(t, "tiger5", tigers[0].Name)
 	assert.Equal(t, "tiger2", tigers[1].Name)
+}
+
+func Test_WhenCreateTigerSightingRequestContainsEmptyImageBlob_ThenReturnErrEmptyImageBlob(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerSightingRequest := &request.CreateTigerSightingRequest{
+		TigerID:   1,
+		Image:     "",
+		Latitude:  -1,
+		Longitude: -1,
+		Timestamp: 0,
+	}
+	_, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "error request contains empty image blob", err.Error())
+}
+
+func Test_WhenCreateTigerSightingRequestContainsInvalidLatitude_ThenReturnErrInvalidLatitude(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerSightingRequest := &request.CreateTigerSightingRequest{
+		TigerID:   1,
+		Image:     "imageblob",
+		Latitude:  -91,
+		Longitude: -1,
+		Timestamp: 0,
+	}
+	_, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "error request contains invalid latitude", err.Error())
+}
+
+func Test_WhenCreateTigerSightingRequestContainsInvalidLongitude_ThenReturnErrInvalidLongitude(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerSightingRequest := &request.CreateTigerSightingRequest{
+		TigerID:   1,
+		Image:     "imageblob",
+		Latitude:  -90,
+		Longitude: -181,
+		Timestamp: 0,
+	}
+	_, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "error request contains invalid longitude", err.Error())
+}
+
+func Test_WhenTigerIDIsInvalidInCreateTigerSightingRequest_ThenShouldReturnErr(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerSightingRequest := &request.CreateTigerSightingRequest{
+		TigerID:   1,
+		Image:     "imageblob",
+		Latitude:  -90,
+		Longitude: -180,
+		Timestamp: 0,
+	}
+	_, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "record not found", err.Error())
+}
+
+func Test_WhenCreateTigerSightingRequestIsValid_ThenShouldSaveTigerSightingInDB(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerRequest := &request.CreateTigerRequest{
+		Name:              "tiger1",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 0,
+	}
+	tiger, _ := tigerService.CreateTiger(createTigerRequest, claims)
+	createTigerSightingRequest := &request.CreateTigerSightingRequest{
+		TigerID:   tiger.ID,
+		Image:     "imageblob",
+		Latitude:  -90,
+		Longitude: -180,
+		Timestamp: 0,
+	}
+	tigerSighting, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, tigerSighting)
+
+	actualTigerSightingInDB := &models2.TigerSighting{}
+	gormDB.First(&actualTigerSightingInDB)
+	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
 }

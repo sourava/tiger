@@ -6,10 +6,11 @@ import (
 )
 
 var (
-	ErrEmptyParams        = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains empty name or date of birth")
-	ErrInvalidLatitude    = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid latitude")
-	ErrInvalidLongitude   = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid longitude")
-	ErrInvalidDateOfBirth = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid date of birth, format = YYYY-MM-DD")
+	ErrEmptyNameOrDateOfBirth = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains empty name or date of birth")
+	ErrEmptyImageBlob         = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains empty image blob")
+	ErrInvalidLatitude        = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid latitude")
+	ErrInvalidLongitude       = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid longitude")
+	ErrInvalidDateOfBirth     = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid date of birth, format = YYYY-MM-DD")
 )
 
 const (

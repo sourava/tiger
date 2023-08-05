@@ -53,3 +53,31 @@ func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest)
 
 	return tigers, nil
 }
+
+func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
+	err := validations.ValidateCreateTigerSightingRequest(request)
+	if err != nil {
+		return nil, err
+	}
+
+	var tiger *models.Tiger
+	result := service.db.First(&tiger, request.TigerID)
+	if result.Error != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	}
+
+	tigerSighting := &models.TigerSighting{
+		UserID:    claims.UserID,
+		TigerID:   request.TigerID,
+		Timestamp: request.Timestamp,
+		Latitude:  request.Latitude,
+		Longitude: request.Longitude,
+	}
+
+	result = service.db.Create(&tigerSighting)
+	if result.Error != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	}
+
+	return tigerSighting, nil
+}

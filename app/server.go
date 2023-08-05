@@ -37,6 +37,7 @@ func initRouter(db *gorm.DB) *gin.Engine {
 		{
 			secured.POST("/user", userHandler.CreateUser)
 			secured.POST("/tiger", tigerHandler.CreateTiger)
+			secured.POST("/tiger/sighting", tigerHandler.CreateTigerSighting)
 		}
 	}
 	return router
@@ -53,6 +54,7 @@ func main() {
 
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models2.Tiger{})
+	db.AutoMigrate(&models2.TigerSighting{})
 	db.Create(&models.User{Username: "user1", Email: "user1@email.com", Password: "$2a$04$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm"})
 
 	r := initRouter(db)

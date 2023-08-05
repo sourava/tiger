@@ -10,5 +10,13 @@ type CreateTigerRequest struct {
 
 type ListAllTigerRequest struct {
 	Offset   int `json:"offset"`
-	PageSize int `json:"page_size"`
+	PageSize int `json:"pageSize"`
+}
+
+type CreateTigerSightingRequest struct {
+	TigerID   uint    `json:"tigerID"`
+	Timestamp int     `json:"timestamp"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Image     string  `json:"image"`
 }

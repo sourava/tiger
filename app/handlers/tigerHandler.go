@@ -64,3 +64,27 @@ func (h *TigerHandler) ListAllTigers(context *gin.Context) {
 	utils.ReturnSuccessResponse(context, tigerList)
 	return
 }
+
+func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
+	var createTigerSightingRequest *request.CreateTigerSightingRequest
+	err := context.ShouldBindBodyWith(&createTigerSightingRequest, binding.JSON)
+	if err != nil {
+		utils.ReturnError(context, customErrors.NewWithErr(http.StatusBadRequest, err))
+		return
+	}
+
+	claims, claimExists := context.Get("token-claims")
+	if !claimExists {
+		utils.ReturnSomethingWentWrong(context)
+		return
+	}
+
+	createdTigerSighting, createTigerSightingErr := h.tigerService.CreateTigerSighting(createTigerSightingRequest, claims.(*request2.JWTClaim))
+	if createTigerSightingErr != nil {
+		utils.ReturnError(context, createTigerSightingErr)
+		return
+	}
+
+	utils.ReturnSuccessResponse(context, createdTigerSighting)
+	return
+}

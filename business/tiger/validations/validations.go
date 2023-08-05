@@ -9,12 +9,24 @@ import (
 
 func ValidateCreateTigerRequest(tigerRequest *request.CreateTigerRequest) *customErrors.CustomError {
 	if tigerRequest.Name == "" || tigerRequest.DateOfBirth == "" {
-		return constants.ErrEmptyParams
+		return constants.ErrEmptyNameOrDateOfBirth
 	} else if !ValidateDateString(tigerRequest.DateOfBirth) {
 		return constants.ErrInvalidDateOfBirth
 	} else if !ValidateLatitude(tigerRequest.LastSeenLatitude) {
 		return constants.ErrInvalidLatitude
 	} else if !ValidateLongitude(tigerRequest.LastSeenLongitude) {
+		return constants.ErrInvalidLongitude
+	}
+
+	return nil
+}
+
+func ValidateCreateTigerSightingRequest(tigerSightingRequest *request.CreateTigerSightingRequest) *customErrors.CustomError {
+	if tigerSightingRequest.Image == "" {
+		return constants.ErrEmptyImageBlob
+	} else if !ValidateLatitude(tigerSightingRequest.Latitude) {
+		return constants.ErrInvalidLatitude
+	} else if !ValidateLongitude(tigerSightingRequest.Longitude) {
 		return constants.ErrInvalidLongitude
 	}
 

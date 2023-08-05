@@ -15,3 +15,15 @@ type Tiger struct {
 	LastSeenLatitude  float64 `gorm:"not null"`
 	LastSeenLongitude float64 `gorm:"not null"`
 }
+
+type TigerSighting struct {
+	gorm.Model
+	UserID    uint
+	User      models.User
+	TigerID   uint
+	Tiger     Tiger
+	Timestamp int     `gorm:"not null"`
+	Latitude  float64 `gorm:"not null"`
+	Longitude float64 `gorm:"not null"`
+	Image     string  `gorm:"not null"`
+}
