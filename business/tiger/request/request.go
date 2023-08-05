@@ -13,6 +13,12 @@ type ListAllTigerRequest struct {
 	PageSize int `json:"pageSize"`
 }
 
+type ListAllTigerSightingsRequest struct {
+	Offset   int `json:"offset"`
+	PageSize int `json:"pageSize"`
+	TigerID  int `json:"tigerID"`
+}
+
 type CreateTigerSightingRequest struct {
 	TigerID   uint    `json:"tigerID"`
 	Timestamp int     `json:"timestamp"`

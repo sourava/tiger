@@ -33,6 +33,7 @@ func initRouter(db *gorm.DB) *gin.Engine {
 	{
 		api.POST("/login", authHandler.Login)
 		api.GET("/tiger", tigerHandler.ListAllTigers)
+		api.GET("/tiger/:tigerID/sightings", tigerHandler.ListAllTigerSightings)
 		secured := api.Use(middlewares.Auth(jwtSecret))
 		{
 			secured.POST("/user", userHandler.CreateUser)

@@ -81,3 +81,19 @@ func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSig
 
 	return tigerSighting, nil
 }
+
+func (service *TigerService) ListAllSightingsForATiger(request *request.ListAllTigerSightingsRequest) ([]*models.TigerSighting, *customErrors.CustomError) {
+	var tiger *models.Tiger
+	result := service.db.First(&tiger, request.TigerID)
+	if result.Error != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	}
+
+	var tigerSightings []*models.TigerSighting
+	result = service.db.Offset(request.Offset).Limit(request.PageSize).Order("timestamp desc").Find(&tigerSightings)
+	if result.Error != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	}
+
+	return tigerSightings, nil
+}

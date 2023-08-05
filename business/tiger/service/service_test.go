@@ -306,3 +306,74 @@ func Test_WhenCreateTigerSightingRequestIsValid_ThenShouldSaveTigerSightingInDB(
 	gormDB.First(&actualTigerSightingInDB)
 	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
 }
+
+func Test_WhenTigerIDIsInvalidInListAllTigerSightingsRequest_ThenShouldReturnErr(t *testing.T) {
+	gormDB, _, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	_, err := tigerService.ListAllSightingsForATiger(&request.ListAllTigerSightingsRequest{
+		TigerID:  1,
+		Offset:   0,
+		PageSize: 2,
+	})
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "record not found", err.Error())
+}
+
+func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrder(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	tiger, _ := tigerService.CreateTiger(&request.CreateTigerRequest{
+		Name:              "tiger1",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 5,
+	}, claims)
+	createTigerSightingRequest1 := &request.CreateTigerSightingRequest{
+		TigerID:   tiger.ID,
+		Image:     "imageblob",
+		Latitude:  -90,
+		Longitude: -180,
+		Timestamp: 6,
+	}
+	createTigerSightingRequest2 := &request.CreateTigerSightingRequest{
+		TigerID:   tiger.ID,
+		Image:     "imageblob",
+		Latitude:  -90,
+		Longitude: -180,
+		Timestamp: 7,
+	}
+	createTigerSightingRequest3 := &request.CreateTigerSightingRequest{
+		TigerID:   tiger.ID,
+		Image:     "imageblob",
+		Latitude:  -90,
+		Longitude: -180,
+		Timestamp: 8,
+	}
+	createTigerSightingRequest4 := &request.CreateTigerSightingRequest{
+		TigerID:   tiger.ID,
+		Image:     "imageblob",
+		Latitude:  -90,
+		Longitude: -180,
+		Timestamp: 9,
+	}
+	tigerService.CreateTigerSighting(createTigerSightingRequest1, claims)
+	tigerService.CreateTigerSighting(createTigerSightingRequest2, claims)
+	tigerService.CreateTigerSighting(createTigerSightingRequest3, claims)
+	tigerService.CreateTigerSighting(createTigerSightingRequest4, claims)
+
+	tigerSightings, err := tigerService.ListAllSightingsForATiger(&request.ListAllTigerSightingsRequest{
+		TigerID:  int(tiger.ID),
+		Offset:   2,
+		PageSize: 2,
+	})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 7, tigerSightings[0].Timestamp)
+	assert.Equal(t, 6, tigerSightings[1].Timestamp)
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/sourava/tiger/external/customErrors"
 	"github.com/sourava/tiger/external/utils"
 	"net/http"
+	"strconv"
 )
 
 type TigerHandler struct {
@@ -86,5 +87,33 @@ func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 	}
 
 	utils.ReturnSuccessResponse(context, createdTigerSighting)
+	return
+}
+
+func (h *TigerHandler) ListAllTigerSightings(context *gin.Context) {
+	offset, pageSize, validationErr := utils.ValidatePaginationQueryParams(context)
+	if validationErr != nil {
+		utils.ReturnError(context, validationErr)
+		return
+	}
+
+	tigerIDStr := context.Param("tigerID")
+	tigerID, err := strconv.Atoi(tigerIDStr)
+	if err != nil {
+		utils.ReturnError(context, customErrors.NewWithMessage(http.StatusBadRequest, "invalid tigerID"))
+		return
+	}
+
+	tigerSightingList, tigerSightingListErr := h.tigerService.ListAllSightingsForATiger(&request.ListAllTigerSightingsRequest{
+		TigerID:  tigerID,
+		Offset:   offset,
+		PageSize: pageSize,
+	})
+	if tigerSightingListErr != nil {
+		utils.ReturnError(context, tigerSightingListErr)
+		return
+	}
+
+	utils.ReturnSuccessResponse(context, tigerSightingList)
 	return
 }
