@@ -11,7 +11,7 @@ import (
 )
 
 func setupTests() (*gorm.DB, func(t *testing.T)) {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test.db?_foreign_keys=on"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}

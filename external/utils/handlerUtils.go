@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+func ReturnSomethingWentWrong(context *gin.Context) {
+	ReturnError(context, customErrors.NewWithMessage(http.StatusInternalServerError, "Something Went Wrong"))
+}
+
 func ReturnError(context *gin.Context, err *customErrors.CustomError) {
 	log.Error(err.Error())
 	context.JSON(err.GetHTTPStatus(), gin.H{

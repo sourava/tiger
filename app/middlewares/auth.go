@@ -24,7 +24,9 @@ func Auth(secret string) gin.HandlerFunc {
 			return
 		}
 
-		err := ValidateToken(tokenString, secret)
+		claims, err := ValidateToken(tokenString, secret)
+
+		context.Set("token-claims", claims)
 
 		if err != nil {
 			utils.ReturnError(context, ErrRequestContainsInvalidToken)
@@ -35,9 +37,10 @@ func Auth(secret string) gin.HandlerFunc {
 	}
 }
 
-func GenerateToken(email string, username string, secret string) (string, error) {
+func GenerateToken(userID uint, email string, username string, secret string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &request.JWTClaim{
+		UserID:   userID,
 		Email:    email,
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
@@ -48,7 +51,7 @@ func GenerateToken(email string, username string, secret string) (string, error)
 	return token.SignedString([]byte(secret))
 }
 
-func ValidateToken(signedToken string, secret string) (err error) {
+func ValidateToken(signedToken string, secret string) (*request.JWTClaim, error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&request.JWTClaim{},
@@ -58,18 +61,19 @@ func ValidateToken(signedToken string, secret string) (err error) {
 	)
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(*request.JWTClaim)
 	if !ok {
 		err = errors.New("couldn't parse claims")
-		return
+		return nil, err
 	}
 
 	if claims.ExpiresAt < time.Now().Local().Unix() {
 		err = errors.New("token expired")
-		return
+		return nil, err
 	}
-	return
+
+	return claims, nil
 }

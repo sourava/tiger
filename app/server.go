@@ -7,6 +7,8 @@ import (
 	"github.com/sourava/tiger/app/handlers"
 	"github.com/sourava/tiger/app/middlewares"
 	service2 "github.com/sourava/tiger/business/auth/service"
+	models2 "github.com/sourava/tiger/business/tiger/models"
+	service3 "github.com/sourava/tiger/business/tiger/service"
 	"github.com/sourava/tiger/business/user/models"
 	"github.com/sourava/tiger/business/user/service"
 	"gorm.io/driver/mysql"
@@ -23,6 +25,9 @@ func initRouter(db *gorm.DB) *gin.Engine {
 	authService := service2.NewAuthService(db, jwtSecret)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	tigerService := service3.NewTigerService(db)
+	tigerHandler := handlers.NewTigerHandler(tigerService)
+
 	router := gin.Default()
 	api := router.Group("/api")
 	{
@@ -30,6 +35,7 @@ func initRouter(db *gorm.DB) *gin.Engine {
 		secured := api.Use(middlewares.Auth(jwtSecret))
 		{
 			secured.POST("/user", userHandler.CreateUser)
+			secured.POST("/tiger", tigerHandler.CreateTiger)
 		}
 	}
 	return router
@@ -45,6 +51,7 @@ func main() {
 	log.Info("database connected successfully", db)
 
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models2.Tiger{})
 	db.Create(&models.User{Username: "user1", Email: "user1@email.com", Password: "$2a$04$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm"})
 
 	r := initRouter(db)

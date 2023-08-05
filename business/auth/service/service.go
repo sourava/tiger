@@ -43,7 +43,7 @@ func (service *AuthService) Login(request *request.LoginRequest) (*response.Logi
 		return nil, ErrEmailPasswordMismatch
 	}
 
-	tokenString, err := middlewares.GenerateToken(user.Email, user.Username, service.jwtSecret)
+	tokenString, err := middlewares.GenerateToken(user.ID, user.Email, user.Username, service.jwtSecret)
 	if err != nil {
 		return nil, ErrGeneratingToken
 	}

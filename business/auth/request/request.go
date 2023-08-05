@@ -8,6 +8,7 @@ type LoginRequest struct {
 }
 
 type JWTClaim struct {
+	UserID   uint   `json:"userID"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	jwt.StandardClaims
