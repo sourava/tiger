@@ -147,3 +147,59 @@ func Test_WhenCreateTigerRequestIsValid_ThenShouldSaveTigerInDB(t *testing.T) {
 	gormDB.First(&actualTigerInDB)
 	assert.Equal(t, "tiger1", actualTigerInDB.Name)
 }
+
+func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigersInCorrectOrder(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	tiger1 := &request.CreateTigerRequest{
+		Name:              "tiger1",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 5,
+	}
+	tiger2 := &request.CreateTigerRequest{
+		Name:              "tiger2",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 2,
+	}
+	tiger3 := &request.CreateTigerRequest{
+		Name:              "tiger3",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 4,
+	}
+	tiger4 := &request.CreateTigerRequest{
+		Name:              "tiger4",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 1,
+	}
+	tiger5 := &request.CreateTigerRequest{
+		Name:              "tiger5",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 3,
+	}
+	tigerService.CreateTiger(tiger1, claims)
+	tigerService.CreateTiger(tiger2, claims)
+	tigerService.CreateTiger(tiger3, claims)
+	tigerService.CreateTiger(tiger4, claims)
+	tigerService.CreateTiger(tiger5, claims)
+
+	tigers, err := tigerService.ListAllTigers(&request.ListAllTigerRequest{
+		Offset:   2,
+		PageSize: 2,
+	})
+
+	assert.Nil(t, err)
+	assert.Equal(t, "tiger5", tigers[0].Name)
+	assert.Equal(t, "tiger2", tigers[1].Name)
+}

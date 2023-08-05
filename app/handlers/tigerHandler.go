@@ -44,3 +44,23 @@ func (h *TigerHandler) CreateTiger(context *gin.Context) {
 	utils.ReturnSuccessResponse(context, createdTiger)
 	return
 }
+
+func (h *TigerHandler) ListAllTigers(context *gin.Context) {
+	offset, pageSize, err := utils.ValidatePaginationQueryParams(context)
+	if err != nil {
+		utils.ReturnError(context, err)
+		return
+	}
+
+	tigerList, err := h.tigerService.ListAllTigers(&request.ListAllTigerRequest{
+		Offset:   offset,
+		PageSize: pageSize,
+	})
+	if err != nil {
+		utils.ReturnError(context, err)
+		return
+	}
+
+	utils.ReturnSuccessResponse(context, tigerList)
+	return
+}

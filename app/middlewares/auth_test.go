@@ -59,7 +59,7 @@ func Test_WhenTokenIsValid_ThenExecuteHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)
-	token, _ := GenerateToken("email@email.com", "username", "secret")
+	token, _ := GenerateToken(1, "email@email.com", "username", "secret")
 	req.Header.Add("Authorization", token)
 	r.ServeHTTP(w, req)
 

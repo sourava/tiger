@@ -7,3 +7,8 @@ type CreateTigerRequest struct {
 	LastSeenLatitude  float64 `json:"latitude"`
 	LastSeenLongitude float64 `json:"longitude"`
 }
+
+type ListAllTigerRequest struct {
+	Offset   int `json:"offset"`
+	PageSize int `json:"page_size"`
+}

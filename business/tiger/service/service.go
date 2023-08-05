@@ -42,3 +42,14 @@ func (service *TigerService) CreateTiger(request *request.CreateTigerRequest, cl
 
 	return tiger, nil
 }
+
+func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest) ([]*models.Tiger, *customErrors.CustomError) {
+	var tigers []*models.Tiger
+
+	result := service.db.Offset(request.Offset).Limit(request.PageSize).Order("last_seen_timestamp desc").Find(&tigers)
+	if result.Error != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	}
+
+	return tigers, nil
+}
