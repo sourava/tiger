@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	request2 "github.com/sourava/tiger/business/auth/request"
 	"github.com/sourava/tiger/business/tiger/constants"
@@ -130,9 +131,10 @@ func (service *TigerService) CreateTigerSighting(tigerSightingRequest *request.C
 	var tigerSightingReporters []*request.TigerSightingReporter
 	err = service.db.
 		Model(&models.TigerSighting{}).
-		Select("users.email").
+		Select("users.username, users.email").
 		Joins("left join users on users.id = tiger_sightings.user_id").
-		Where("tiger_sightings.tiger_id = ?", tiger.ID).
+		Group("users.id").
+		Having("tiger_sightings.tiger_id = ?", tiger.ID).
 		Scan(&tigerSightingReporters).Error
 	if err != nil {
 		log.Error(err)
@@ -140,7 +142,8 @@ func (service *TigerService) CreateTigerSighting(tigerSightingRequest *request.C
 
 	service.tigerSightingNotificationChannel <- &request.SendTigerSightingNotificationRequest{
 		Reporters: tigerSightingReporters,
-		Message:   "",
+		Message:   fmt.Sprintf("%v is reported to be sighted at %v Latitude, %v Longitude", tiger.Name, tigerSighting.Latitude, tigerSighting.Longitude),
+		Subject:   fmt.Sprintf("Sighting Reported for %v", tiger.Name),
 	}
 
 	return tigerSighting, nil

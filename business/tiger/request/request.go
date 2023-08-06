@@ -21,11 +21,13 @@ type ListAllTigerSightingsRequest struct {
 
 type TigerSightingReporter struct {
 	Email string `json:"email"`
+	Name  string `json:"username"`
 }
 
 type SendTigerSightingNotificationRequest struct {
 	Reporters []*TigerSightingReporter
 	Message   string
+	Subject   string
 }
 
 type CreateTigerSightingRequest struct {

@@ -9,11 +9,13 @@ import (
 	"github.com/sourava/tiger/app/handlers"
 	"github.com/sourava/tiger/app/middlewares"
 	service2 "github.com/sourava/tiger/business/auth/service"
+	service4 "github.com/sourava/tiger/business/notification/service"
 	models2 "github.com/sourava/tiger/business/tiger/models"
 	"github.com/sourava/tiger/business/tiger/request"
 	service3 "github.com/sourava/tiger/business/tiger/service"
 	"github.com/sourava/tiger/business/user/models"
 	"github.com/sourava/tiger/business/user/service"
+	"github.com/sourava/tiger/external/client/sendgrid"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"os"
@@ -76,6 +78,15 @@ func initDBSeeds(appConfig config.AppConfig, db *gorm.DB) {
 	}
 }
 
+func tigerSightingNotificationSubscriber(notificationService *service4.NotificationService, tigerSightingNotificationChannel <-chan *request.SendTigerSightingNotificationRequest) {
+	for {
+		select {
+		case tigerSightingNotificationRequest := <-tigerSightingNotificationChannel:
+			notificationService.SendTigerSightingNotification(tigerSightingNotificationRequest)
+		}
+	}
+}
+
 func main() {
 	appConfig := config.AppConfig{
 		ServicePort: os.Getenv(constants.ServicePort),
@@ -95,18 +106,13 @@ func main() {
 
 	tigerSightingNotificationChannel := make(chan *request.SendTigerSightingNotificationRequest, 1000)
 
-	go func() {
-		for {
-			select {
-			case message := <-tigerSightingNotificationChannel:
-				fmt.Println("+++++++++++++++++++++message", message.Reporters[0].Email)
-			}
-		}
-	}()
-
 	db := initDB(appConfig.DB)
 	initDBMigrations(db)
 	initDBSeeds(appConfig, db)
+
+	notificationService := service4.NewNotificationService(sendgrid.NewSendgridApiClient(appConfig.Sendgrid.ApiKey, appConfig.Sendgrid.SenderEmail, appConfig.Sendgrid.SenderName))
+
+	go tigerSightingNotificationSubscriber(notificationService, tigerSightingNotificationChannel)
 
 	r := initRouter(db, tigerSightingNotificationChannel)
 	r.Run(fmt.Sprintf(":%v", appConfig.ServicePort))
