@@ -375,15 +375,15 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrd
 	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest3, claims)
 	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest4, claims)
 
-	tigerSightings, err := tigerService.ListAllSightingsForATiger(&request.ListAllTigerSightingsRequest{
+	listAllTigerSightingsResponse, err := tigerService.ListAllSightingsForATiger(&request.ListAllTigerSightingsRequest{
 		TigerID:  int(tiger.ID),
 		Offset:   2,
 		PageSize: 2,
 	})
 
 	assert.Nil(t, err)
-	assert.Equal(t, 7, tigerSightings[0].Timestamp)
-	assert.Equal(t, 6, tigerSightings[1].Timestamp)
+	assert.Equal(t, 7, listAllTigerSightingsResponse.Payload.TigerSightings[0].Timestamp)
+	assert.Equal(t, 6, listAllTigerSightingsResponse.Payload.TigerSightings[1].Timestamp)
 }
 
 func Test_WhenCreateTigerIsValid_ThenShouldSaveTigerAndTigerSightingInDB(t *testing.T) {

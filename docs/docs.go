@@ -106,6 +106,61 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tigers/:tigerID/sightings": {
+            "get": {
+                "description": "returns all sightings for a tiger sorted by date.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "list all tiger sightings api",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tiger ID",
+                        "name": "tigerID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -169,11 +224,11 @@ const docTemplate = `{
         "github_com_sourava_tiger_business_tiger_response.TigerResponse": {
             "type": "object",
             "properties": {
-                "LastSeenLongitude": {
+                "Last_seen_longitude": {
                     "type": "number",
                     "example": 10.2
                 },
-                "dateOfBirth": {
+                "date_of_birth": {
                     "type": "string",
                     "example": "2020-01-13"
                 },
@@ -181,11 +236,11 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "lastSeenLatitude": {
+                "last_seen_latitude": {
                     "type": "number",
                     "example": 1.1
                 },
-                "lastSeenTimestamp": {
+                "last_seen_timestamp": {
                     "type": "integer",
                     "example": 1691354650
                 },

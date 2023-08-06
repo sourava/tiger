@@ -52,8 +52,8 @@ func (h *TigerHandler) CreateTiger(context *gin.Context) {
 // @Description  returns all tigers sorted by last time the tiger was seen.
 // @Accept       json
 // @Produce      json
-// @Param page   query int true "Page"
-// @Param pageSize query int true "Page Size"
+// @Param 		 page   	query int true "Page"
+// @Param 		 pageSize 	query int true "Page Size"
 // @Success      200  {object}  response.ListAllTigersHandlerResponse
 // @Failure      400  {object} 	utils.HandlerErrorResponse
 // @Failure      500  {object}  utils.HandlerErrorResponse
@@ -109,6 +109,18 @@ func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 	return
 }
 
+// ListAllTigerSightings godoc
+// @Summary      list all tiger sightings api
+// @Description  returns all sightings for a tiger sorted by date.
+// @Accept       json
+// @Produce      json
+// @Param 		 page 		query int true "Page"
+// @Param		 pageSize 	query int true "Page Size"
+// @Param 		 tigerID 	path  int true "Tiger ID"
+// @Success      200  {object}  response.ListAllTigersHandlerResponse
+// @Failure      400  {object} 	utils.HandlerErrorResponse
+// @Failure      500  {object}  utils.HandlerErrorResponse
+// @Router       /tigers/:tigerID/sightings [get]
 func (h *TigerHandler) ListAllTigerSightings(context *gin.Context) {
 	offset, pageSize, validationErr := utils.ValidatePaginationQueryParams(context)
 	if validationErr != nil {

@@ -155,18 +155,23 @@ func (service *TigerService) CreateTigerSighting(tigerID uint, tigerSightingRequ
 	return tigerSighting, nil
 }
 
-func (service *TigerService) ListAllSightingsForATiger(request *request.ListAllTigerSightingsRequest) ([]*models.TigerSighting, *customErrors.CustomError) {
+func (service *TigerService) ListAllSightingsForATiger(request *request.ListAllTigerSightingsRequest) (*response.ListAllTigerSightingsHandlerResponse, *customErrors.CustomError) {
 	var tiger *models.Tiger
 	result := service.db.First(&tiger, request.TigerID)
 	if result.Error != nil {
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
 	}
 
-	var tigerSightings []*models.TigerSighting
-	result = service.db.Offset(request.Offset).Limit(request.PageSize).Order("timestamp desc").Find(&tigerSightings)
+	var tigerSightings []*response.TigerSightingResponse
+	result = service.db.Table("tiger_sightings").Offset(request.Offset).Limit(request.PageSize).Order("timestamp desc").Find(&tigerSightings)
 	if result.Error != nil {
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
 	}
 
-	return tigerSightings, nil
+	return &response.ListAllTigerSightingsHandlerResponse{
+		Success: true,
+		Payload: response.ListAllTigerSightingsResponse{
+			TigerSightings: tigerSightings,
+		},
+	}, nil
 }

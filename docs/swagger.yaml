@@ -40,19 +40,19 @@ definitions:
     type: object
   github_com_sourava_tiger_business_tiger_response.TigerResponse:
     properties:
-      LastSeenLongitude:
+      Last_seen_longitude:
         example: 10.2
         type: number
-      dateOfBirth:
+      date_of_birth:
         example: "2020-01-13"
         type: string
       id:
         example: 1
         type: integer
-      lastSeenLatitude:
+      last_seen_latitude:
         example: 1.1
         type: number
-      lastSeenTimestamp:
+      last_seen_timestamp:
         example: 1691354650
         type: integer
       name:
@@ -137,6 +137,43 @@ paths:
           schema:
             $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
       summary: list all tigers api
+  /tigers/:tigerID/sightings:
+    get:
+      consumes:
+      - application/json
+      description: returns all sightings for a tiger sorted by date.
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page Size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      - description: Tiger ID
+        in: path
+        name: tigerID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+      summary: list all tiger sightings api
 schemes:
 - http
 swagger: "2.0"
