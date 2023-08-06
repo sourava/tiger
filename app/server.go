@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"github.com/sourava/tiger/app/config"
+	"github.com/sourava/tiger/app/constants"
 	"github.com/sourava/tiger/app/handlers"
 	"github.com/sourava/tiger/app/middlewares"
 	service2 "github.com/sourava/tiger/business/auth/service"
@@ -44,8 +46,8 @@ func initRouter(db *gorm.DB) *gin.Engine {
 	return router
 }
 
-func main() {
-	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT"), os.Getenv("MYSQL_DATABASE"))
+func initDB(dbConfig config.DBConfig) *gorm.DB {
+	dsn := fmt.Sprintf(constants.DbConnectionString, dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Database)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to connect database")
@@ -53,11 +55,47 @@ func main() {
 	}
 	log.Info("database connected successfully", db)
 
+	return db
+}
+
+func initDBMigrations(db *gorm.DB) {
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models2.Tiger{})
 	db.AutoMigrate(&models2.TigerSighting{})
-	db.Create(&models.User{Username: "user1", Email: "user1@email.com", Password: "$2a$04$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm"})
+}
+
+func initDBSeeds(appConfig config.AppConfig, db *gorm.DB) {
+	record := db.Create(&models.User{
+		Username: appConfig.Superuser.Username,
+		Email:    appConfig.Superuser.Email,
+		Password: appConfig.Superuser.HashedPassword,
+	})
+	if record.Error != nil {
+		log.Error(record.Error)
+	}
+}
+
+func main() {
+	appConfig := config.AppConfig{
+		ServicePort: os.Getenv(constants.ServicePort),
+		DB: config.DBConfig{
+			Host:     os.Getenv(constants.MysqlHost),
+			Port:     os.Getenv(constants.MysqlPort),
+			Username: os.Getenv(constants.MysqlUser),
+			Password: os.Getenv(constants.MysqlPassword),
+			Database: os.Getenv(constants.MysqlDb),
+		},
+		Superuser: config.Superuser{
+			Username:       os.Getenv(constants.SuperuserUsername),
+			Email:          os.Getenv(constants.SuperuserEmail),
+			HashedPassword: os.Getenv(constants.SuperuserHashedPassword),
+		},
+	}
+
+	db := initDB(appConfig.DB)
+	initDBMigrations(db)
+	initDBSeeds(appConfig, db)
 
 	r := initRouter(db)
-	r.Run()
+	r.Run(fmt.Sprintf(":%v", appConfig.ServicePort))
 }
