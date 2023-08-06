@@ -74,13 +74,20 @@ func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 		return
 	}
 
+	tigerIDStr := context.Param("tigerID")
+	tigerID, err := strconv.Atoi(tigerIDStr)
+	if err != nil {
+		utils.ReturnError(context, customErrors.NewWithMessage(http.StatusBadRequest, "invalid tigerID"))
+		return
+	}
+
 	claims, claimExists := context.Get("token-claims")
 	if !claimExists {
 		utils.ReturnSomethingWentWrong(context)
 		return
 	}
 
-	createdTigerSighting, createTigerSightingErr := h.tigerService.CreateTigerSighting(createTigerSightingRequest, claims.(*request2.JWTClaim))
+	createdTigerSighting, createTigerSightingErr := h.tigerService.CreateTigerSighting(uint(tigerID), createTigerSightingRequest, claims.(*request2.JWTClaim))
 	if createTigerSightingErr != nil {
 		utils.ReturnError(context, createTigerSightingErr)
 		return

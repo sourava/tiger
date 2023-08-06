@@ -78,7 +78,7 @@ func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest)
 	return tigers, nil
 }
 
-func (service *TigerService) CreateTigerSighting(tigerSightingRequest *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
+func (service *TigerService) CreateTigerSighting(tigerID uint, tigerSightingRequest *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
 	validationErr := validations.ValidateCreateTigerSightingRequest(tigerSightingRequest)
 	if validationErr != nil {
 		return nil, validationErr
@@ -90,7 +90,7 @@ func (service *TigerService) CreateTigerSighting(tigerSightingRequest *request.C
 	}
 
 	var tiger *models.Tiger
-	result := service.db.First(&tiger, tigerSightingRequest.TigerID)
+	result := service.db.First(&tiger, tigerID)
 	if result.Error != nil {
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
 	}
@@ -101,7 +101,7 @@ func (service *TigerService) CreateTigerSighting(tigerSightingRequest *request.C
 
 	tigerSighting := &models.TigerSighting{
 		UserID:    claims.UserID,
-		TigerID:   tigerSightingRequest.TigerID,
+		TigerID:   tiger.ID,
 		Timestamp: tigerSightingRequest.Timestamp,
 		Latitude:  tigerSightingRequest.Latitude,
 		Longitude: tigerSightingRequest.Longitude,

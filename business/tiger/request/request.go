@@ -31,7 +31,6 @@ type SendTigerSightingNotificationRequest struct {
 }
 
 type CreateTigerSightingRequest struct {
-	TigerID   uint    `json:"tigerID"`
 	Timestamp int     `json:"timestamp"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
