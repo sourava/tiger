@@ -212,14 +212,14 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigersInCorrectOrder(t *te
 	tigerService.CreateTiger(tiger4, claims)
 	tigerService.CreateTiger(tiger5, claims)
 
-	tigers, err := tigerService.ListAllTigers(&request.ListAllTigerRequest{
+	listAllTigersResponse, err := tigerService.ListAllTigers(&request.ListAllTigerRequest{
 		Offset:   2,
 		PageSize: 2,
 	})
 
 	assert.Nil(t, err)
-	assert.Equal(t, "tiger5", tigers[0].Name)
-	assert.Equal(t, "tiger2", tigers[1].Name)
+	assert.Equal(t, "tiger5", listAllTigersResponse.Payload.Tigers[0].Name)
+	assert.Equal(t, "tiger2", listAllTigersResponse.Payload.Tigers[1].Name)
 }
 
 func Test_WhenCreateTigerSightingRequestContainsEmptyImageBlob_ThenReturnErrEmptyImageBlob(t *testing.T) {

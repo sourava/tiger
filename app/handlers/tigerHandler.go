@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	request2 "github.com/sourava/tiger/business/auth/request"
 	"github.com/sourava/tiger/business/tiger/request"
+	_ "github.com/sourava/tiger/business/tiger/response"
 	"github.com/sourava/tiger/business/tiger/service"
 	"github.com/sourava/tiger/external/customErrors"
 	"github.com/sourava/tiger/external/utils"
@@ -46,6 +47,17 @@ func (h *TigerHandler) CreateTiger(context *gin.Context) {
 	return
 }
 
+// ListAllTigers godoc
+// @Summary      list all tigers api
+// @Description  returns all tigers sorted by last time the tiger was seen.
+// @Accept       json
+// @Produce      json
+// @Param page   query int true "Page"
+// @Param pageSize query int true "Page Size"
+// @Success      200  {object}  response.ListAllTigersHandlerResponse
+// @Failure      400  {object} 	utils.HandlerErrorResponse
+// @Failure      500  {object}  utils.HandlerErrorResponse
+// @Router       /tigers [get]
 func (h *TigerHandler) ListAllTigers(context *gin.Context) {
 	offset, pageSize, err := utils.ValidatePaginationQueryParams(context)
 	if err != nil {

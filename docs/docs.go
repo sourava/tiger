@@ -58,6 +58,54 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tigers": {
+            "get": {
+                "description": "returns all tigers sorted by last time the tiger was seen.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "list all tigers api",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -95,6 +143,62 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersResponse"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "github_com_sourava_tiger_business_tiger_response.ListAllTigersResponse": {
+            "type": "object",
+            "properties": {
+                "tigers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.TigerResponse"
+                    }
+                }
+            }
+        },
+        "github_com_sourava_tiger_business_tiger_response.TigerResponse": {
+            "type": "object",
+            "properties": {
+                "LastSeenLongitude": {
+                    "type": "number",
+                    "example": 10.2
+                },
+                "dateOfBirth": {
+                    "type": "string",
+                    "example": "2020-01-13"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "lastSeenLatitude": {
+                    "type": "number",
+                    "example": 1.1
+                },
+                "lastSeenTimestamp": {
+                    "type": "integer",
+                    "example": 1691354650
+                },
+                "name": {
+                    "type": "string",
+                    "example": "tiger name"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "github_com_sourava_tiger_external_utils.HandlerErrorResponse": {
             "type": "object",
             "properties": {
@@ -115,7 +219,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/",
+	BasePath:         "/api",
 	Schemes:          []string{"http"},
 	Title:            "Tigerhall Kittens API",
 	Description:      "",

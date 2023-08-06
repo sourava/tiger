@@ -7,6 +7,7 @@ import (
 	"github.com/sourava/tiger/business/tiger/constants"
 	"github.com/sourava/tiger/business/tiger/models"
 	"github.com/sourava/tiger/business/tiger/request"
+	"github.com/sourava/tiger/business/tiger/response"
 	"github.com/sourava/tiger/business/tiger/validations"
 	"github.com/sourava/tiger/external/customErrors"
 	"github.com/sourava/tiger/external/utils"
@@ -67,15 +68,20 @@ func (service *TigerService) CreateTiger(request *request.CreateTigerRequest, cl
 	return tiger, nil
 }
 
-func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest) ([]*models.Tiger, *customErrors.CustomError) {
-	var tigers []*models.Tiger
+func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest) (*response.ListAllTigersHandlerResponse, *customErrors.CustomError) {
+	var tigers []*response.TigerResponse
 
-	result := service.db.Offset(request.Offset).Limit(request.PageSize).Order("last_seen_timestamp desc").Find(&tigers)
+	result := service.db.Table("tigers").Offset(request.Offset).Limit(request.PageSize).Order("last_seen_timestamp desc").Find(&tigers)
 	if result.Error != nil {
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
 	}
 
-	return tigers, nil
+	return &response.ListAllTigersHandlerResponse{
+		Success: true,
+		Payload: response.ListAllTigersResponse{
+			Tigers: tigers,
+		},
+	}, nil
 }
 
 func (service *TigerService) CreateTigerSighting(tigerID uint, tigerSightingRequest *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
