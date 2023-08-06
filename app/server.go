@@ -15,7 +15,10 @@ import (
 	service3 "github.com/sourava/tiger/business/tiger/service"
 	"github.com/sourava/tiger/business/user/models"
 	"github.com/sourava/tiger/business/user/service"
+	_ "github.com/sourava/tiger/docs"
 	"github.com/sourava/tiger/external/client/sendgrid"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"os"
@@ -34,6 +37,11 @@ func initRouter(db *gorm.DB, tigerSightingNotificationChannel chan<- *request.Se
 	tigerHandler := handlers.NewTigerHandler(tigerService)
 
 	router := gin.Default()
+	swagger := router.Group("/swagger")
+	{
+		url := ginSwagger.URL("http://localhost:8080/swagger/doc.json") // The url pointing to API definition
+		swagger.GET("/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	}
 	api := router.Group("/api")
 	{
 		api.POST("/login", authHandler.Login)
@@ -87,6 +95,12 @@ func tigerSightingNotificationSubscriber(notificationService *service4.Notificat
 	}
 }
 
+// @title Tigerhall Kittens API
+// @version 1.0
+
+// @host localhost:8080
+// @BasePath /api
+// @schemes http
 func main() {
 	appConfig := config.AppConfig{
 		ServicePort: os.Getenv(constants.ServicePort),

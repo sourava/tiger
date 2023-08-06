@@ -28,7 +28,7 @@ func NewAuthService(db *gorm.DB, jwtSecret string) *AuthService {
 	}
 }
 
-func (service *AuthService) Login(request *request.LoginRequest) (*response.LoginResponse, *customErrors.CustomError) {
+func (service *AuthService) Login(request *request.LoginRequest) (*response.LoginHandlerResponse, *customErrors.CustomError) {
 	var user models.User
 	record := service.db.Where("email = ?", request.Email).First(&user)
 	if record.Error != nil {
@@ -48,8 +48,11 @@ func (service *AuthService) Login(request *request.LoginRequest) (*response.Logi
 		return nil, ErrGeneratingToken
 	}
 
-	return &response.LoginResponse{
-		Token: tokenString,
+	return &response.LoginHandlerResponse{
+		Success: true,
+		Payload: response.LoginResponse{
+			Token: tokenString,
+		},
 	}, nil
 }
 

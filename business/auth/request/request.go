@@ -3,8 +3,8 @@ package request
 import "github.com/dgrijalva/jwt-go"
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" example:"user@gmail.com"`
+	Password string `json:"password" example:"password"`
 }
 
 type JWTClaim struct {

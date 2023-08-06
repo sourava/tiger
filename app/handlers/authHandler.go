@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/sourava/tiger/business/auth/request"
+	_ "github.com/sourava/tiger/business/auth/response"
 	"github.com/sourava/tiger/external/customErrors"
 	"github.com/sourava/tiger/external/utils"
 
@@ -21,6 +22,16 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 	}
 }
 
+// Login godoc
+// @Summary      login api
+// @Description  provides token if email password combination is correct
+// @Accept       json
+// @Produce      json
+// @Param      	 request body request.LoginRequest true "login request body params"
+// @Success      200  {object}  response.LoginHandlerResponse
+// @Failure      400  {object} 	utils.HandlerErrorResponse
+// @Failure      500  {object}  utils.HandlerErrorResponse
+// @Router       /login [post]
 func (h *AuthHandler) Login(context *gin.Context) {
 	var loginRequest *request.LoginRequest
 	err := context.ShouldBindBodyWith(&loginRequest, binding.JSON)

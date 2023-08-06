@@ -1,0 +1,71 @@
+basePath: /
+definitions:
+  github_com_sourava_tiger_business_auth_request.LoginRequest:
+    properties:
+      email:
+        example: user@gmail.com
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+  github_com_sourava_tiger_business_auth_response.LoginHandlerResponse:
+    properties:
+      payload:
+        $ref: '#/definitions/github_com_sourava_tiger_business_auth_response.LoginResponse'
+      success:
+        example: true
+        type: boolean
+    type: object
+  github_com_sourava_tiger_business_auth_response.LoginResponse:
+    properties:
+      token:
+        example: jwt.token
+        type: string
+    type: object
+  github_com_sourava_tiger_external_utils.HandlerErrorResponse:
+    properties:
+      error:
+        example: Something went wrong
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Tigerhall Kittens API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: provides token if email password combination is correct
+      parameters:
+      - description: login request body params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sourava_tiger_business_auth_request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_business_auth_response.LoginHandlerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+      summary: login api
+schemes:
+- http
+swagger: "2.0"

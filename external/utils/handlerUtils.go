@@ -8,24 +8,26 @@ import (
 	"strconv"
 )
 
+type HandlerErrorResponse struct {
+	Success bool   `json:"success" example:"false"`
+	Error   string `json:"error,omitempty" example:"Something went wrong"`
+}
+
 func ReturnSomethingWentWrong(context *gin.Context) {
 	ReturnError(context, customErrors.NewWithMessage(http.StatusInternalServerError, "Something Went Wrong"))
 }
 
 func ReturnError(context *gin.Context, err *customErrors.CustomError) {
 	log.Error(err.Error())
-	context.JSON(err.GetHTTPStatus(), gin.H{
-		"success": false,
-		"error":   err.Error(),
+	context.JSON(err.GetHTTPStatus(), HandlerErrorResponse{
+		Success: false,
+		Error:   err.Error(),
 	})
 }
 
 func ReturnSuccessResponse(context *gin.Context, data interface{}) {
 	log.Info(data)
-	context.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"payload": data,
-	})
+	context.JSON(http.StatusOK, data)
 }
 
 func ValidatePaginationQueryParams(context *gin.Context) (int, int, *customErrors.CustomError) {
