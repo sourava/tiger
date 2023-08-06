@@ -75,9 +75,14 @@ func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest)
 }
 
 func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
-	err := validations.ValidateCreateTigerSightingRequest(request)
+	validationErr := validations.ValidateCreateTigerSightingRequest(request)
+	if validationErr != nil {
+		return nil, validationErr
+	}
+
+	resizedImage, err := utils.ResizeImage(request.Image, 250, 200)
 	if err != nil {
-		return nil, err
+		return nil, customErrors.NewWithErr(http.StatusBadRequest, err)
 	}
 
 	var tiger *models.Tiger
@@ -96,9 +101,10 @@ func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSig
 		Timestamp: request.Timestamp,
 		Latitude:  request.Latitude,
 		Longitude: request.Longitude,
+		Image:     resizedImage,
 	}
 
-	transactionErr := service.db.Transaction(func(tx *gorm.DB) error {
+	err = service.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(tigerSighting).Error; err != nil {
 			return err
 		}
@@ -114,8 +120,8 @@ func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSig
 		return nil
 	})
 
-	if transactionErr != nil {
-		return nil, customErrors.NewWithErr(http.StatusInternalServerError, transactionErr)
+	if err != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, err)
 	}
 
 	return tigerSighting, nil
