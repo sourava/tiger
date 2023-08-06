@@ -377,3 +377,68 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrd
 	assert.Equal(t, 7, tigerSightings[0].Timestamp)
 	assert.Equal(t, 6, tigerSightings[1].Timestamp)
 }
+
+func Test_WhenCreateTigerIsValid_ThenShouldSaveTigerAndTigerSightingInDB(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerRequest := &request.CreateTigerRequest{
+		Name:              "tiger1",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 0,
+	}
+	tiger, err := tigerService.CreateTiger(createTigerRequest, claims)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, tiger)
+
+	actualTigerInDB := &models2.Tiger{}
+	gormDB.First(&actualTigerInDB)
+	assert.Equal(t, "tiger1", actualTigerInDB.Name)
+
+	actualTigerSightingInDB := &models2.TigerSighting{}
+	gormDB.First(&actualTigerSightingInDB)
+	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
+}
+
+func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTigerInDB(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerRequest := &request.CreateTigerRequest{
+		Name:              "tiger1",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  -90,
+		LastSeenLongitude: -180,
+		LastSeenTimestamp: 0,
+	}
+	tiger, err := tigerService.CreateTiger(createTigerRequest, claims)
+	assert.Nil(t, err)
+	assert.Equal(t, float64(-90), tiger.LastSeenLatitude)
+	assert.Equal(t, float64(-180), tiger.LastSeenLongitude)
+
+	createTigerSightingRequest := &request.CreateTigerSightingRequest{
+		TigerID:   tiger.ID,
+		Latitude:  0,
+		Longitude: 0,
+		Timestamp: 20,
+		Image:     "image-blob",
+	}
+	tigerSighting, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, tigerSighting)
+
+	actualTigerInDB := &models2.Tiger{}
+	gormDB.First(&actualTigerInDB)
+	assert.Equal(t, float64(0), actualTigerInDB.LastSeenLatitude)
+	assert.Equal(t, float64(0), actualTigerInDB.LastSeenLongitude)
+
+	actualTigerSightingInDB := &models2.TigerSighting{}
+	gormDB.First(&actualTigerSightingInDB)
+	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
+}

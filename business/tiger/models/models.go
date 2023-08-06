@@ -25,5 +25,5 @@ type TigerSighting struct {
 	Timestamp int     `gorm:"not null"`
 	Latitude  float64 `gorm:"not null"`
 	Longitude float64 `gorm:"not null"`
-	Image     string  `gorm:"not null"`
+	Image     string
 }

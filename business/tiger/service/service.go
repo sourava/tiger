@@ -35,9 +35,27 @@ func (service *TigerService) CreateTiger(request *request.CreateTigerRequest, cl
 		LastSeenLongitude: request.LastSeenLongitude,
 	}
 
-	result := service.db.Create(&tiger)
-	if result.Error != nil {
-		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	transactionErr := service.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(tiger).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&models.TigerSighting{
+			TigerID:   tiger.ID,
+			UserID:    claims.UserID,
+			Latitude:  tiger.LastSeenLatitude,
+			Longitude: tiger.LastSeenLongitude,
+			Timestamp: tiger.LastSeenTimestamp,
+			Image:     "",
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionErr != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, transactionErr)
 	}
 
 	return tiger, nil
@@ -74,9 +92,24 @@ func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSig
 		Longitude: request.Longitude,
 	}
 
-	result = service.db.Create(&tigerSighting)
-	if result.Error != nil {
-		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	transactionErr := service.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(tigerSighting).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(tiger).Updates(map[string]interface{}{
+			"last_seen_timestamp": tigerSighting.Timestamp,
+			"last_seen_latitude":  tigerSighting.Latitude,
+			"last_seen_longitude": tigerSighting.Longitude,
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if transactionErr != nil {
+		return nil, customErrors.NewWithErr(http.StatusInternalServerError, transactionErr)
 	}
 
 	return tigerSighting, nil
