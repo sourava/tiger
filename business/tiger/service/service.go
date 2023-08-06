@@ -2,10 +2,12 @@ package service
 
 import (
 	request2 "github.com/sourava/tiger/business/auth/request"
+	"github.com/sourava/tiger/business/tiger/constants"
 	"github.com/sourava/tiger/business/tiger/models"
 	"github.com/sourava/tiger/business/tiger/request"
 	"github.com/sourava/tiger/business/tiger/validations"
 	"github.com/sourava/tiger/external/customErrors"
+	"github.com/sourava/tiger/external/utils"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -82,6 +84,10 @@ func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSig
 	result := service.db.First(&tiger, request.TigerID)
 	if result.Error != nil {
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
+	}
+
+	if utils.Distance(tiger.LastSeenLatitude, tiger.LastSeenLongitude, request.Latitude, request.Longitude) < 5000 {
+		return nil, constants.ErrTigerWithin5KM
 	}
 
 	tigerSighting := &models.TigerSighting{

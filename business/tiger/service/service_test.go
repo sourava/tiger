@@ -293,7 +293,7 @@ func Test_WhenCreateTigerSightingRequestIsValid_ThenShouldSaveTigerSightingInDB(
 	createTigerSightingRequest := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
 		Image:     "imageblob",
-		Latitude:  -90,
+		Latitude:  -83,
 		Longitude: -180,
 		Timestamp: 0,
 	}
@@ -337,28 +337,28 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrd
 	createTigerSightingRequest1 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
 		Image:     "imageblob",
-		Latitude:  -90,
+		Latitude:  -80,
 		Longitude: -180,
 		Timestamp: 6,
 	}
 	createTigerSightingRequest2 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
 		Image:     "imageblob",
-		Latitude:  -90,
+		Latitude:  -70,
 		Longitude: -180,
 		Timestamp: 7,
 	}
 	createTigerSightingRequest3 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
 		Image:     "imageblob",
-		Latitude:  -90,
+		Latitude:  -60,
 		Longitude: -180,
 		Timestamp: 8,
 	}
 	createTigerSightingRequest4 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
 		Image:     "imageblob",
-		Latitude:  -90,
+		Latitude:  -50,
 		Longitude: -180,
 		Timestamp: 9,
 	}
@@ -441,4 +441,30 @@ func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTig
 	actualTigerSightingInDB := &models2.TigerSighting{}
 	gormDB.First(&actualTigerSightingInDB)
 	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
+}
+
+func Test_WhenCreateTigerSightingIsValidButTigerWithin5KM_ThenShouldReturnErrTigerWithin5KM(t *testing.T) {
+	gormDB, claims, teardownTestCase := setupTests()
+	defer teardownTestCase(t)
+
+	tigerService := NewTigerService(gormDB)
+	createTigerRequest := &request.CreateTigerRequest{
+		Name:              "tiger1",
+		DateOfBirth:       "2020-01-13",
+		LastSeenLatitude:  0,
+		LastSeenLongitude: 0,
+		LastSeenTimestamp: 0,
+	}
+	tiger, _ := tigerService.CreateTiger(createTigerRequest, claims)
+	createTigerSightingRequest := &request.CreateTigerSightingRequest{
+		TigerID:   tiger.ID,
+		Latitude:  0.044,
+		Longitude: 0,
+		Timestamp: 20,
+		Image:     "image-blob",
+	}
+	_, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "error tiger within 5km from last seen location", err.Error())
 }

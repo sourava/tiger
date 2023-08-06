@@ -11,6 +11,7 @@ var (
 	ErrInvalidLatitude        = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid latitude")
 	ErrInvalidLongitude       = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid longitude")
 	ErrInvalidDateOfBirth     = customErrors.NewWithMessage(http.StatusBadRequest, "error request contains invalid date of birth, format = YYYY-MM-DD")
+	ErrTigerWithin5KM         = customErrors.NewWithMessage(http.StatusBadRequest, "error tiger within 5km from last seen location")
 )
 
 const (
