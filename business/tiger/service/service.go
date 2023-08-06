@@ -1,6 +1,7 @@
 package service
 
 import (
+	log "github.com/sirupsen/logrus"
 	request2 "github.com/sourava/tiger/business/auth/request"
 	"github.com/sourava/tiger/business/tiger/constants"
 	"github.com/sourava/tiger/business/tiger/models"
@@ -13,12 +14,14 @@ import (
 )
 
 type TigerService struct {
-	db *gorm.DB
+	db                               *gorm.DB
+	tigerSightingNotificationChannel chan<- *request.SendTigerSightingNotificationRequest
 }
 
-func NewTigerService(db *gorm.DB) *TigerService {
+func NewTigerService(db *gorm.DB, tigerSightingNotificationChannel chan<- *request.SendTigerSightingNotificationRequest) *TigerService {
 	return &TigerService{
-		db: db,
+		db:                               db,
+		tigerSightingNotificationChannel: tigerSightingNotificationChannel,
 	}
 }
 
@@ -74,33 +77,33 @@ func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest)
 	return tigers, nil
 }
 
-func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
-	validationErr := validations.ValidateCreateTigerSightingRequest(request)
+func (service *TigerService) CreateTigerSighting(tigerSightingRequest *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
+	validationErr := validations.ValidateCreateTigerSightingRequest(tigerSightingRequest)
 	if validationErr != nil {
 		return nil, validationErr
 	}
 
-	resizedImage, err := utils.ResizeImage(request.Image, 250, 200)
+	resizedImage, err := utils.ResizeImage(tigerSightingRequest.Image, 250, 200)
 	if err != nil {
 		return nil, customErrors.NewWithErr(http.StatusBadRequest, err)
 	}
 
 	var tiger *models.Tiger
-	result := service.db.First(&tiger, request.TigerID)
+	result := service.db.First(&tiger, tigerSightingRequest.TigerID)
 	if result.Error != nil {
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, result.Error)
 	}
 
-	if utils.Distance(tiger.LastSeenLatitude, tiger.LastSeenLongitude, request.Latitude, request.Longitude) < 5000 {
+	if utils.Distance(tiger.LastSeenLatitude, tiger.LastSeenLongitude, tigerSightingRequest.Latitude, tigerSightingRequest.Longitude) < 5000 {
 		return nil, constants.ErrTigerWithin5KM
 	}
 
 	tigerSighting := &models.TigerSighting{
 		UserID:    claims.UserID,
-		TigerID:   request.TigerID,
-		Timestamp: request.Timestamp,
-		Latitude:  request.Latitude,
-		Longitude: request.Longitude,
+		TigerID:   tigerSightingRequest.TigerID,
+		Timestamp: tigerSightingRequest.Timestamp,
+		Latitude:  tigerSightingRequest.Latitude,
+		Longitude: tigerSightingRequest.Longitude,
 		Image:     resizedImage,
 	}
 
@@ -122,6 +125,22 @@ func (service *TigerService) CreateTigerSighting(request *request.CreateTigerSig
 
 	if err != nil {
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, err)
+	}
+
+	var tigerSightingReporters []*request.TigerSightingReporter
+	err = service.db.
+		Model(&models.TigerSighting{}).
+		Select("users.email").
+		Joins("left join users on users.id = tiger_sightings.user_id").
+		Where("tiger_sightings.tiger_id = ?", tiger.ID).
+		Scan(&tigerSightingReporters).Error
+	if err != nil {
+		log.Error(err)
+	}
+
+	service.tigerSightingNotificationChannel <- &request.SendTigerSightingNotificationRequest{
+		Reporters: tigerSightingReporters,
+		Message:   "",
 	}
 
 	return tigerSighting, nil

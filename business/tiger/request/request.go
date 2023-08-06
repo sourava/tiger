@@ -19,6 +19,15 @@ type ListAllTigerSightingsRequest struct {
 	TigerID  int `json:"tigerID"`
 }
 
+type TigerSightingReporter struct {
+	Email string `json:"email"`
+}
+
+type SendTigerSightingNotificationRequest struct {
+	Reporters []*TigerSightingReporter
+	Message   string
+}
+
 type CreateTigerSightingRequest struct {
 	TigerID   uint    `json:"tigerID"`
 	Timestamp int     `json:"timestamp"`

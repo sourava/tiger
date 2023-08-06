@@ -10,6 +10,7 @@ import (
 	"github.com/sourava/tiger/app/middlewares"
 	service2 "github.com/sourava/tiger/business/auth/service"
 	models2 "github.com/sourava/tiger/business/tiger/models"
+	"github.com/sourava/tiger/business/tiger/request"
 	service3 "github.com/sourava/tiger/business/tiger/service"
 	"github.com/sourava/tiger/business/user/models"
 	"github.com/sourava/tiger/business/user/service"
@@ -18,7 +19,7 @@ import (
 	"os"
 )
 
-func initRouter(db *gorm.DB) *gin.Engine {
+func initRouter(db *gorm.DB, tigerSightingNotificationChannel chan<- *request.SendTigerSightingNotificationRequest) *gin.Engine {
 	jwtSecret := os.Getenv("JWT_PRIVATE_KEY")
 
 	userService := service.NewUserService(db)
@@ -27,7 +28,7 @@ func initRouter(db *gorm.DB) *gin.Engine {
 	authService := service2.NewAuthService(db, jwtSecret)
 	authHandler := handlers.NewAuthHandler(authService)
 
-	tigerService := service3.NewTigerService(db)
+	tigerService := service3.NewTigerService(db, tigerSightingNotificationChannel)
 	tigerHandler := handlers.NewTigerHandler(tigerService)
 
 	router := gin.Default()
@@ -92,10 +93,21 @@ func main() {
 		},
 	}
 
+	tigerSightingNotificationChannel := make(chan *request.SendTigerSightingNotificationRequest, 1000)
+
+	go func() {
+		for {
+			select {
+			case message := <-tigerSightingNotificationChannel:
+				fmt.Println("+++++++++++++++++++++message", message.Reporters[0].Email)
+			}
+		}
+	}()
+
 	db := initDB(appConfig.DB)
 	initDBMigrations(db)
 	initDBSeeds(appConfig, db)
 
-	r := initRouter(db)
+	r := initRouter(db, tigerSightingNotificationChannel)
 	r.Run(fmt.Sprintf(":%v", appConfig.ServicePort))
 }

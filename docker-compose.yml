@@ -16,7 +16,7 @@ services:
       MYSQL_PORT: 3306
       SUPERUSER_USERNAME: superuser
       SUPERUSER_EMAIL: superuser@tigerhall.com
-      SUPERUSER_HASHED_PASSWORD: $2a$04$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm
+      SUPERUSER_HASHED_PASSWORD: $$2a$$04$$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm
     networks:
       - tigerhall
     depends_on:

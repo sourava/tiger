@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func setupTests() (*gorm.DB, *request2.JWTClaim, func(t *testing.T)) {
+func setupTests() (*gorm.DB, *request2.JWTClaim, chan *request.SendTigerSightingNotificationRequest, func(t *testing.T)) {
 	db, err := gorm.Open(sqlite.Open("test.db?_foreign_keys=on"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
@@ -29,7 +29,9 @@ func setupTests() (*gorm.DB, *request2.JWTClaim, func(t *testing.T)) {
 		Email:    "user1@email.com",
 	}
 
-	return db, claims, func(t *testing.T) {
+	tigerSightingNotificationChannel := make(chan *request.SendTigerSightingNotificationRequest, 1000)
+
+	return db, claims, tigerSightingNotificationChannel, func(t *testing.T) {
 		err := os.Remove("test.db")
 		if err != nil {
 			t.Log(err)
@@ -38,10 +40,10 @@ func setupTests() (*gorm.DB, *request2.JWTClaim, func(t *testing.T)) {
 }
 
 func Test_WhenCreateTigerRequestContainsEmptyName_ThenReturnErrEmptyParams(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "",
 		DateOfBirth:       "",
@@ -56,10 +58,10 @@ func Test_WhenCreateTigerRequestContainsEmptyName_ThenReturnErrEmptyParams(t *te
 }
 
 func Test_WhenCreateTigerRequestContainsEmptyDateOfBirth_ThenReturnErrEmptyParams(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "",
@@ -74,10 +76,10 @@ func Test_WhenCreateTigerRequestContainsEmptyDateOfBirth_ThenReturnErrEmptyParam
 }
 
 func Test_WhenCreateTigerRequestContainsInvalidDateOfBirth_ThenReturnErrInvalidDateOfBirth(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "invalid date",
@@ -92,10 +94,10 @@ func Test_WhenCreateTigerRequestContainsInvalidDateOfBirth_ThenReturnErrInvalidD
 }
 
 func Test_WhenCreateTigerRequestContainsInvalidLatitude_ThenReturnErrInvalidLatitude(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -110,10 +112,10 @@ func Test_WhenCreateTigerRequestContainsInvalidLatitude_ThenReturnErrInvalidLati
 }
 
 func Test_WhenCreateTigerRequestContainsInvalidLongitude_ThenReturnErrInvalidLongitude(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -128,10 +130,10 @@ func Test_WhenCreateTigerRequestContainsInvalidLongitude_ThenReturnErrInvalidLon
 }
 
 func Test_WhenCreateTigerRequestIsValid_ThenShouldSaveTigerInDB(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -150,10 +152,10 @@ func Test_WhenCreateTigerRequestIsValid_ThenShouldSaveTigerInDB(t *testing.T) {
 }
 
 func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigersInCorrectOrder(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	tiger1 := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -206,10 +208,10 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigersInCorrectOrder(t *te
 }
 
 func Test_WhenCreateTigerSightingRequestContainsEmptyImageBlob_ThenReturnErrEmptyImageBlob(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerSightingRequest := &request.CreateTigerSightingRequest{
 		TigerID:   1,
 		Image:     "",
@@ -224,13 +226,13 @@ func Test_WhenCreateTigerSightingRequestContainsEmptyImageBlob_ThenReturnErrEmpt
 }
 
 func Test_WhenCreateTigerSightingRequestContainsInvalidLatitude_ThenReturnErrInvalidLatitude(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerSightingRequest := &request.CreateTigerSightingRequest{
 		TigerID:   1,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -91,
 		Longitude: -1,
 		Timestamp: 0,
@@ -242,13 +244,13 @@ func Test_WhenCreateTigerSightingRequestContainsInvalidLatitude_ThenReturnErrInv
 }
 
 func Test_WhenCreateTigerSightingRequestContainsInvalidLongitude_ThenReturnErrInvalidLongitude(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerSightingRequest := &request.CreateTigerSightingRequest{
 		TigerID:   1,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -90,
 		Longitude: -181,
 		Timestamp: 0,
@@ -260,13 +262,13 @@ func Test_WhenCreateTigerSightingRequestContainsInvalidLongitude_ThenReturnErrIn
 }
 
 func Test_WhenTigerIDIsInvalidInCreateTigerSightingRequest_ThenShouldReturnErr(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerSightingRequest := &request.CreateTigerSightingRequest{
 		TigerID:   1,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -90,
 		Longitude: -180,
 		Timestamp: 0,
@@ -278,10 +280,10 @@ func Test_WhenTigerIDIsInvalidInCreateTigerSightingRequest_ThenShouldReturnErr(t
 }
 
 func Test_WhenCreateTigerSightingRequestIsValid_ThenShouldSaveTigerSightingInDB(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -292,7 +294,7 @@ func Test_WhenCreateTigerSightingRequestIsValid_ThenShouldSaveTigerSightingInDB(
 	tiger, _ := tigerService.CreateTiger(createTigerRequest, claims)
 	createTigerSightingRequest := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -83,
 		Longitude: -180,
 		Timestamp: 0,
@@ -308,10 +310,10 @@ func Test_WhenCreateTigerSightingRequestIsValid_ThenShouldSaveTigerSightingInDB(
 }
 
 func Test_WhenTigerIDIsInvalidInListAllTigerSightingsRequest_ThenShouldReturnErr(t *testing.T) {
-	gormDB, _, teardownTestCase := setupTests()
+	gormDB, _, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	_, err := tigerService.ListAllSightingsForATiger(&request.ListAllTigerSightingsRequest{
 		TigerID:  1,
 		Offset:   0,
@@ -323,10 +325,10 @@ func Test_WhenTigerIDIsInvalidInListAllTigerSightingsRequest_ThenShouldReturnErr
 }
 
 func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrder(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	tiger, _ := tigerService.CreateTiger(&request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -336,28 +338,28 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrd
 	}, claims)
 	createTigerSightingRequest1 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -80,
 		Longitude: -180,
 		Timestamp: 6,
 	}
 	createTigerSightingRequest2 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -70,
 		Longitude: -180,
 		Timestamp: 7,
 	}
 	createTigerSightingRequest3 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -60,
 		Longitude: -180,
 		Timestamp: 8,
 	}
 	createTigerSightingRequest4 := &request.CreateTigerSightingRequest{
 		TigerID:   tiger.ID,
-		Image:     "imageblob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 		Latitude:  -50,
 		Longitude: -180,
 		Timestamp: 9,
@@ -379,10 +381,10 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrd
 }
 
 func Test_WhenCreateTigerIsValid_ThenShouldSaveTigerAndTigerSightingInDB(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -405,10 +407,10 @@ func Test_WhenCreateTigerIsValid_ThenShouldSaveTigerAndTigerSightingInDB(t *test
 }
 
 func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTigerInDB(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -426,7 +428,7 @@ func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTig
 		Latitude:  0,
 		Longitude: 0,
 		Timestamp: 20,
-		Image:     "image-blob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 	}
 	tigerSighting, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
 
@@ -444,10 +446,10 @@ func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTig
 }
 
 func Test_WhenCreateTigerSightingIsValidButTigerWithin5KM_ThenShouldReturnErrTigerWithin5KM(t *testing.T) {
-	gormDB, claims, teardownTestCase := setupTests()
+	gormDB, claims, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
-	tigerService := NewTigerService(gormDB)
+	tigerService := NewTigerService(gormDB, tigerSightingNotificationChannel)
 	createTigerRequest := &request.CreateTigerRequest{
 		Name:              "tiger1",
 		DateOfBirth:       "2020-01-13",
@@ -461,7 +463,7 @@ func Test_WhenCreateTigerSightingIsValidButTigerWithin5KM_ThenShouldReturnErrTig
 		Latitude:  0.044,
 		Longitude: 0,
 		Timestamp: 20,
-		Image:     "image-blob",
+		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 	}
 	_, err := tigerService.CreateTigerSighting(createTigerSightingRequest, claims)
 
