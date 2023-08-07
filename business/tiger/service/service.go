@@ -84,7 +84,7 @@ func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest)
 	}, nil
 }
 
-func (service *TigerService) CreateTigerSighting(tigerID uint, tigerSightingRequest *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*models.TigerSighting, *customErrors.CustomError) {
+func (service *TigerService) CreateTigerSighting(tigerID uint, tigerSightingRequest *request.CreateTigerSightingRequest, claims *request2.JWTClaim) (*response.CreateTigerSightingHandlerResponse, *customErrors.CustomError) {
 	validationErr := validations.ValidateCreateTigerSightingRequest(tigerSightingRequest)
 	if validationErr != nil {
 		return nil, validationErr
@@ -152,7 +152,7 @@ func (service *TigerService) CreateTigerSighting(tigerID uint, tigerSightingRequ
 		Subject:   fmt.Sprintf("Sighting Reported for %v", tiger.Name),
 	}
 
-	return tigerSighting, nil
+	return response.BuildCreateTigerSightingHandlerResponse(tigerSighting, tiger.ID), nil
 }
 
 func (service *TigerService) ListAllSightingsForATiger(request *request.ListAllTigerSightingsRequest) (*response.ListAllTigerSightingsHandlerResponse, *customErrors.CustomError) {

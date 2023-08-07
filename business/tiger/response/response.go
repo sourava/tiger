@@ -1,6 +1,8 @@
 package response
 
-import "github.com/sourava/tiger/business/tiger/models"
+import (
+	"github.com/sourava/tiger/business/tiger/models"
+)
 
 type TigerResponse struct {
 	ID                uint    `json:"id" example:"1"`
@@ -62,6 +64,34 @@ func BuildCreateTigerHandlerResponse(tiger *models.Tiger) *CreateTigerHandlerRes
 			DateOfBirth:       tiger.DateOfBirth,
 			LastSeenLatitude:  tiger.LastSeenLatitude,
 			LastSeenLongitude: tiger.LastSeenLongitude,
+		},
+	}
+}
+
+type CreateTigerSightingResponse struct {
+	ID        uint    `json:"id" exmple:"1"`
+	TigerID   uint    `json:"tiger_id" example:"1"`
+	Timestamp int     `json:"timestamp" example:"1691354650"`
+	Latitude  float64 `json:"latitude" example:"1.1"`
+	Longitude float64 `json:"longitude" example:"10.2"`
+	Image     string  `json:"image" example:"base64 encoded image string"`
+}
+
+type CreateTigerSightingHandlerResponse struct {
+	Success bool                        `json:"success" example:"true"`
+	Payload CreateTigerSightingResponse `json:"payload"`
+}
+
+func BuildCreateTigerSightingHandlerResponse(tigerSighting *models.TigerSighting, tigerID uint) *CreateTigerSightingHandlerResponse {
+	return &CreateTigerSightingHandlerResponse{
+		Success: true,
+		Payload: CreateTigerSightingResponse{
+			ID:        tigerSighting.ID,
+			TigerID:   tigerID,
+			Timestamp: tigerSighting.Timestamp,
+			Latitude:  tigerSighting.Latitude,
+			Longitude: tigerSighting.Longitude,
+			Image:     tigerSighting.Image,
 		},
 	}
 }

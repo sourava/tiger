@@ -89,6 +89,18 @@ func (h *TigerHandler) ListAllTigers(context *gin.Context) {
 	return
 }
 
+// CreateTigerSighting godoc
+// @Summary      create tiger sighting api
+// @Description  creates a tiger sighting.
+// @Accept       json
+// @Produce      json
+// @Param      	 Authorization  header string					  			true "token received in login api response"
+// @Param 		 tigerID 		path   int 									true "Tiger ID"
+// @Param      	 request 		body   request.CreateTigerSightingRequest 	true "create tiger sighting request body params"
+// @Success      200  {object}  response.CreateTigerSightingHandlerResponse
+// @Failure      400  {object} 	utils.HandlerErrorResponse
+// @Failure      500  {object}  utils.HandlerErrorResponse
+// @Router       /tigers/:tigerID/sightings [post]
 func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 	var createTigerSightingRequest *request.CreateTigerSightingRequest
 	err := context.ShouldBindBodyWith(&createTigerSightingRequest, binding.JSON)
