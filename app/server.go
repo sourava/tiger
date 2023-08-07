@@ -90,6 +90,7 @@ func tigerSightingNotificationSubscriber(notificationService *service4.Notificat
 	for {
 		select {
 		case tigerSightingNotificationRequest := <-tigerSightingNotificationChannel:
+			log.Info(constants.TigerSightingNotificationRequest, tigerSightingNotificationRequest)
 			notificationService.SendTigerSightingNotification(tigerSightingNotificationRequest)
 		}
 	}
@@ -116,9 +117,14 @@ func main() {
 			Email:          os.Getenv(constants.SuperuserEmail),
 			HashedPassword: os.Getenv(constants.SuperuserHashedPassword),
 		},
+		Sendgrid: config.Sendgrid{
+			ApiKey:      os.Getenv(constants.SendgridApiKey),
+			SenderEmail: os.Getenv(constants.SendgridSenderEmail),
+			SenderName:  os.Getenv(constants.SendgridSenderName),
+		},
 	}
 
-	tigerSightingNotificationChannel := make(chan *request.SendTigerSightingNotificationRequest, 1000)
+	tigerSightingNotificationChannel := make(chan *request.SendTigerSightingNotificationRequest, 100000)
 
 	db := initDB(appConfig.DB)
 	initDBMigrations(db)

@@ -136,11 +136,10 @@ func (service *TigerService) CreateTigerSighting(tigerID uint, tigerSightingRequ
 
 	var tigerSightingReporters []*request.TigerSightingReporter
 	err = service.db.
-		Model(&models.TigerSighting{}).
-		Select("users.username, users.email").
+		Distinct("tiger_sightings.user_id", "users.username", "users.email").
+		Table("tiger_sightings").
 		Joins("left join users on users.id = tiger_sightings.user_id").
-		Group("users.id").
-		Having("tiger_sightings.tiger_id = ?", tiger.ID).
+		Where("tiger_sightings.tiger_id = ?", tiger.ID).
 		Scan(&tigerSightingReporters).Error
 	if err != nil {
 		log.Error(err)

@@ -10,7 +10,7 @@ testcases:
         method: POST
         url: {{.url}}/login
         body: |
-          {"email": "superuser@tigerhall.com", "password": "password"}
+          {"email": "mailtosouravagarwal@gmail.com", "password": "password"}
         assertions:
           - result.statuscode ShouldEqual 200
           - result.bodyjson.success ShouldEqual true
@@ -21,7 +21,7 @@ testcases:
         method: POST
         url: {{.url}}/login
         body: |
-          {"email": "superuser@tigerhall.com", "password": "password1"}
+          {"email": "mailtosouravagarwal@gmail.com", "password": "password1"}
         assertions:
           - result.statuscode ShouldEqual 400
           - result.bodyjson.success ShouldEqual false

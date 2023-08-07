@@ -15,7 +15,7 @@ e2e-tests:
 	@make build
 	docker-compose -f docker-compose-e2e.yml up -d
 	docker run --network=tigerhall-e2e-test --mount type=bind,source=$(PWD)/e2e,target=/workdir/tests --mount type=bind,source=$(PWD)/e2e-results,target=/workdir/results ovhcom/venom:latest
-	docker-compose -f docker-compose-e2e.yml down -v
+	docker-compose -f docker-compose-e2e.yml logs -f
 
 logs:
 	docker-compose logs -f

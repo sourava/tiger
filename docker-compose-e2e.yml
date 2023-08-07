@@ -7,6 +7,8 @@ services:
     image: tiger-dev
     ports:
       - "8081:8081"
+    env_file:
+      - .env
     environment:
       SERVICE_PORT: 8081
       MYSQL_PASSWORD: password
@@ -15,8 +17,11 @@ services:
       MYSQL_HOST: mysql-e2e
       MYSQL_PORT: 3306
       SUPERUSER_USERNAME: superuser
-      SUPERUSER_EMAIL: superuser@tigerhall.com
+      SUPERUSER_EMAIL: mailtosouravagarwal@gmail.com
       SUPERUSER_HASHED_PASSWORD: $$2a$$04$$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm
+      SENDGRID_SENDER_EMAIL: sourav2dec@gmail.com
+      SENDGRID_SENDER_NAME: Tigerhall Application
+
     networks:
       - tigerhall-e2e
     depends_on:

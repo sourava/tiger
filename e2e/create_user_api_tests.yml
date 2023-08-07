@@ -10,7 +10,7 @@ testcases:
         method: POST
         url: {{.url}}/login
         body: |
-          {"email": "superuser@tigerhall.com", "password": "password"}
+          {"email": "mailtosouravagarwal@gmail.com", "password": "password"}
         vars:
           token:
             from: result.bodyjson.payload.token
