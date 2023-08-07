@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites>
+  <testsuite name="APIIntegrationTest" package="tests/venom.yml" tests="2">
+    <testcase classname="venom.yml" name="Login" time="0.091393417">
+      <system-out><![CDATA[
+]]></system-out>
+      <system-err><![CDATA[
+]]></system-err>
+    </testcase>
+    <testcase classname="venom.yml" name="CreateUser-http-testcase" time="0.077119667">
+      <system-out><![CDATA[
+]]></system-out>
+      <system-err><![CDATA[
+]]></system-err>
+    </testcase>
+  </testsuite>
+</testsuites>

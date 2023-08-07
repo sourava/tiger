@@ -1,0 +1,45 @@
+version: '3.6'
+services:
+  tigerhall-service-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tiger-dev
+    ports:
+      - "8081:8081"
+    environment:
+      SERVICE_PORT: 8081
+      MYSQL_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_DATABASE: tigerdb
+      MYSQL_HOST: mysql-e2e
+      MYSQL_PORT: 3306
+      SUPERUSER_USERNAME: superuser
+      SUPERUSER_EMAIL: superuser@tigerhall.com
+      SUPERUSER_HASHED_PASSWORD: $$2a$$04$$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm
+    networks:
+      - tigerhall-e2e
+    depends_on:
+      mysql-e2e:
+        condition: service_healthy
+
+  mysql-e2e:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_DATABASE=tigerdb
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+    networks:
+      - tigerhall-e2e
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+
+networks:
+  tigerhall-e2e:
+    name: tigerhall-e2e-test
+    driver: bridge
