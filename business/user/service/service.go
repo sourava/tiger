@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/sourava/tiger/business/user/models"
 	"github.com/sourava/tiger/business/user/request"
+	"github.com/sourava/tiger/business/user/response"
 	"github.com/sourava/tiger/external/customErrors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -26,15 +27,15 @@ func NewUserService(db *gorm.DB) *UserService {
 	}
 }
 
-func (service *UserService) CreateUser(request *request.CreateUserRequest) *customErrors.CustomError {
+func (service *UserService) CreateUser(request *request.CreateUserRequest) (*response.CreateUserHandlerResponse, *customErrors.CustomError) {
 	err := validateCreateUserRequest(request)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	hashedPassword, err := hashPassword(request.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	user := &models.User{
@@ -44,10 +45,17 @@ func (service *UserService) CreateUser(request *request.CreateUserRequest) *cust
 	}
 	result := service.DB.Create(&user)
 	if result.Error != nil {
-		return customErrors.NewWithErr(http.StatusBadRequest, result.Error)
+		return nil, customErrors.NewWithErr(http.StatusBadRequest, result.Error)
 	}
 
-	return nil
+	return &response.CreateUserHandlerResponse{
+		Success: true,
+		Payload: response.CreateUserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		},
+	}, nil
 }
 
 func hashPassword(password string) (string, *customErrors.CustomError) {

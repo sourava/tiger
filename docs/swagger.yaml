@@ -62,6 +62,35 @@ definitions:
         example: 1
         type: integer
     type: object
+  github_com_sourava_tiger_business_user_request.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse:
+    properties:
+      payload:
+        $ref: '#/definitions/github_com_sourava_tiger_business_user_response.CreateUserResponse'
+      success:
+        example: true
+        type: boolean
+    type: object
+  github_com_sourava_tiger_business_user_response.CreateUserResponse:
+    properties:
+      email:
+        example: user@gmail.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      username:
+        example: username
+        type: string
+    type: object
   github_com_sourava_tiger_external_utils.HandlerErrorResponse:
     properties:
       error:
@@ -174,6 +203,39 @@ paths:
           schema:
             $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
       summary: list all tiger sightings api
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: creates a user.
+      parameters:
+      - description: token received in login api response
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create user request body params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sourava_tiger_business_user_request.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+      summary: create user api
 schemes:
 - http
 swagger: "2.0"

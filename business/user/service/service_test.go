@@ -36,7 +36,7 @@ func Test_WhenCreateUserRequestContainsEmptyParams_ThenReturnErrCreateUserReques
 		Email:    "",
 		Password: "",
 	}
-	err := userService.CreateUser(createUserRequest)
+	_, err := userService.CreateUser(createUserRequest)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "error request contains empty username, email or password", err.Error())
@@ -52,7 +52,7 @@ func Test_WhenCreateUserRequestContainsInvalidEmail_ThenReturnError(t *testing.T
 		Email:    "invalid",
 		Password: "password",
 	}
-	err := userService.CreateUser(createUserRequest)
+	_, err := userService.CreateUser(createUserRequest)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "error request contains invalid email", err.Error())
@@ -68,7 +68,7 @@ func Test_WhenCreateUserRequestIsValid_ThenShouldCreateUser(t *testing.T) {
 		Email:    "valid@email.com",
 		Password: "password",
 	}
-	err := userService.CreateUser(createUserRequest)
+	_, err := userService.CreateUser(createUserRequest)
 
 	assert.Nil(t, err)
 
@@ -94,7 +94,7 @@ func Test_WhenCreateUserRequestIsValidAndUsernameAlreadyExists_ThenShouldReturnU
 		Email:    "unique@email.com",
 		Password: "password",
 	}
-	err := userService.CreateUser(createUserRequest)
+	_, err := userService.CreateUser(createUserRequest)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "UNIQUE constraint failed: users.username", err.Error())
@@ -116,7 +116,7 @@ func Test_WhenCreateUserRequestIsValidAndEmailAlreadyExists_ThenShouldReturnUniq
 		Email:    "valid@email.com",
 		Password: "password",
 	}
-	err := userService.CreateUser(createUserRequest)
+	_, err := userService.CreateUser(createUserRequest)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "UNIQUE constraint failed: users.email", err.Error())

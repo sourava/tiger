@@ -161,6 +161,56 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users": {
+            "post": {
+                "description": "creates a user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create user api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token received in login api response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "create user request body params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_business_user_request.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -251,6 +301,49 @@ const docTemplate = `{
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "github_com_sourava_tiger_business_user_request.CreateUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "$ref": "#/definitions/github_com_sourava_tiger_business_user_response.CreateUserResponse"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "github_com_sourava_tiger_business_user_response.CreateUserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@gmail.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "example": "username"
                 }
             }
         },
