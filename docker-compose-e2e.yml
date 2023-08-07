@@ -19,8 +19,6 @@ services:
       SUPERUSER_USERNAME: superuser
       SUPERUSER_EMAIL: mailtosouravagarwal@gmail.com
       SUPERUSER_HASHED_PASSWORD: $$2a$$04$$npZR8DN1y2I0VNRrrPG6XOk.C2lfQLzCOhK5T9lR40oQuecSEHkhm
-      SENDGRID_SENDER_EMAIL: sourav2dec@gmail.com
-      SENDGRID_SENDER_NAME: Tigerhall Application
 
     networks:
       - tigerhall-e2e

@@ -22,3 +22,6 @@ logs:
 
 down:
 	docker-compose down -v
+
+generate-swagger-doc:
+	swag init -g app/server.go --output docs/

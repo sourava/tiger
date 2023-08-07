@@ -28,7 +28,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_auth_request.LoginRequest"
+                            "$ref": "#/definitions/request.LoginRequest"
                         }
                     }
                 ],
@@ -36,19 +36,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_auth_response.LoginHandlerResponse"
+                            "$ref": "#/definitions/response.LoginHandlerResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     }
                 }
@@ -84,19 +84,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse"
+                            "$ref": "#/definitions/response.ListAllTigersHandlerResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     }
                 }
@@ -124,33 +124,33 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_request.CreateTigerRequest"
+                            "$ref": "#/definitions/request.CreateTigerRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse"
+                            "$ref": "#/definitions/response.CreateTigerHandlerResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/tigers/:tigerID/sightings": {
+        "/tigers/:id/sightings": {
             "get": {
                 "description": "returns all sightings for a tiger sorted by date.",
                 "consumes": [
@@ -187,19 +187,74 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse"
+                            "$ref": "#/definitions/response.ListAllTigersHandlerResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "creates a tiger sighting.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create tiger sighting api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token received in login api response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tiger ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "create tiger sighting request body params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateTigerSightingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.CreateTigerSightingHandlerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     }
                 }
@@ -229,27 +284,27 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_user_request.CreateUserRequest"
+                            "$ref": "#/definitions/request.CreateUserRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse"
+                            "$ref": "#/definitions/response.CreateUserHandlerResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                            "$ref": "#/definitions/utils.HandlerErrorResponse"
                         }
                     }
                 }
@@ -257,7 +312,66 @@
         }
     },
     "definitions": {
-        "github_com_sourava_tiger_business_auth_request.LoginRequest": {
+        "request.CreateTigerRequest": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "2020-01-01"
+                },
+                "last_seen_latitude": {
+                    "type": "number",
+                    "example": 1.1
+                },
+                "last_seen_longitude": {
+                    "type": "number",
+                    "example": 10.2
+                },
+                "last_seen_timestamp": {
+                    "type": "integer",
+                    "example": 1691423085
+                },
+                "name": {
+                    "type": "string",
+                    "example": "tiger name"
+                }
+            }
+        },
+        "request.CreateTigerSightingRequest": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
+        "request.LoginRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -270,11 +384,11 @@
                 }
             }
         },
-        "github_com_sourava_tiger_business_auth_response.LoginHandlerResponse": {
+        "response.CreateTigerHandlerResponse": {
             "type": "object",
             "properties": {
                 "payload": {
-                    "$ref": "#/definitions/github_com_sourava_tiger_business_auth_response.LoginResponse"
+                    "$ref": "#/definitions/response.CreateTigerResponse"
                 },
                 "success": {
                     "type": "boolean",
@@ -282,48 +396,7 @@
                 }
             }
         },
-        "github_com_sourava_tiger_business_auth_response.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string",
-                    "example": "jwt.token"
-                }
-            }
-        },
-        "github_com_sourava_tiger_business_tiger_request.CreateTigerRequest": {
-            "type": "object",
-            "properties": {
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "integer"
-                }
-            }
-        },
-        "github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse": {
-            "type": "object",
-            "properties": {
-                "payload": {
-                    "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerResponse"
-                },
-                "success": {
-                    "type": "boolean",
-                    "example": true
-                }
-            }
-        },
-        "github_com_sourava_tiger_business_tiger_response.CreateTigerResponse": {
+        "response.CreateTigerResponse": {
             "type": "object",
             "properties": {
                 "date_of_birth": {
@@ -351,11 +424,11 @@
                 }
             }
         },
-        "github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse": {
+        "response.CreateTigerSightingHandlerResponse": {
             "type": "object",
             "properties": {
                 "payload": {
-                    "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersResponse"
+                    "$ref": "#/definitions/response.CreateTigerSightingResponse"
                 },
                 "success": {
                     "type": "boolean",
@@ -363,18 +436,108 @@
                 }
             }
         },
-        "github_com_sourava_tiger_business_tiger_response.ListAllTigersResponse": {
+        "response.CreateTigerSightingResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string",
+                    "example": "base64 encoded image string"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 1.1
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 10.2
+                },
+                "tiger_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "timestamp": {
+                    "type": "integer",
+                    "example": 1691354650
+                }
+            }
+        },
+        "response.CreateUserHandlerResponse": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "$ref": "#/definitions/response.CreateUserResponse"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "response.CreateUserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@gmail.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
+        "response.ListAllTigersHandlerResponse": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "$ref": "#/definitions/response.ListAllTigersResponse"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "response.ListAllTigersResponse": {
             "type": "object",
             "properties": {
                 "tigers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.TigerResponse"
+                        "$ref": "#/definitions/response.TigerResponse"
                     }
                 }
             }
         },
-        "github_com_sourava_tiger_business_tiger_response.TigerResponse": {
+        "response.LoginHandlerResponse": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "$ref": "#/definitions/response.LoginResponse"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "response.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "jwt.token"
+                }
+            }
+        },
+        "response.TigerResponse": {
             "type": "object",
             "properties": {
                 "Last_seen_longitude": {
@@ -407,53 +570,7 @@
                 }
             }
         },
-        "github_com_sourava_tiger_business_user_request.CreateUserRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "user@gmail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "password"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "username"
-                }
-            }
-        },
-        "github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse": {
-            "type": "object",
-            "properties": {
-                "payload": {
-                    "$ref": "#/definitions/github_com_sourava_tiger_business_user_response.CreateUserResponse"
-                },
-                "success": {
-                    "type": "boolean",
-                    "example": true
-                }
-            }
-        },
-        "github_com_sourava_tiger_business_user_response.CreateUserResponse": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "user@gmail.com"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "username": {
-                    "type": "string",
-                    "example": "username"
-                }
-            }
-        },
-        "github_com_sourava_tiger_external_utils.HandlerErrorResponse": {
+        "utils.HandlerErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {

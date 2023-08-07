@@ -1,6 +1,47 @@
 basePath: /api
 definitions:
-  github_com_sourava_tiger_business_auth_request.LoginRequest:
+  request.CreateTigerRequest:
+    properties:
+      date_of_birth:
+        example: "2020-01-01"
+        type: string
+      last_seen_latitude:
+        example: 1.1
+        type: number
+      last_seen_longitude:
+        example: 10.2
+        type: number
+      last_seen_timestamp:
+        example: 1691423085
+        type: integer
+      name:
+        example: tiger name
+        type: string
+    type: object
+  request.CreateTigerSightingRequest:
+    properties:
+      image:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      timestamp:
+        type: integer
+    type: object
+  request.CreateUserRequest:
+    properties:
+      email:
+        example: user@gmail.com
+        type: string
+      password:
+        example: password
+        type: string
+      username:
+        example: username
+        type: string
+    type: object
+  request.LoginRequest:
     properties:
       email:
         example: user@gmail.com
@@ -9,42 +50,15 @@ definitions:
         example: password
         type: string
     type: object
-  github_com_sourava_tiger_business_auth_response.LoginHandlerResponse:
+  response.CreateTigerHandlerResponse:
     properties:
       payload:
-        $ref: '#/definitions/github_com_sourava_tiger_business_auth_response.LoginResponse'
+        $ref: '#/definitions/response.CreateTigerResponse'
       success:
         example: true
         type: boolean
     type: object
-  github_com_sourava_tiger_business_auth_response.LoginResponse:
-    properties:
-      token:
-        example: jwt.token
-        type: string
-    type: object
-  github_com_sourava_tiger_business_tiger_request.CreateTigerRequest:
-    properties:
-      dateOfBirth:
-        type: string
-      latitude:
-        type: number
-      longitude:
-        type: number
-      name:
-        type: string
-      timestamp:
-        type: integer
-    type: object
-  github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse:
-    properties:
-      payload:
-        $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerResponse'
-      success:
-        example: true
-        type: boolean
-    type: object
-  github_com_sourava_tiger_business_tiger_response.CreateTigerResponse:
+  response.CreateTigerResponse:
     properties:
       date_of_birth:
         example: "2020-01-13"
@@ -64,22 +78,84 @@ definitions:
         example: tiger name
         type: string
     type: object
-  github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse:
+  response.CreateTigerSightingHandlerResponse:
     properties:
       payload:
-        $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersResponse'
+        $ref: '#/definitions/response.CreateTigerSightingResponse'
       success:
         example: true
         type: boolean
     type: object
-  github_com_sourava_tiger_business_tiger_response.ListAllTigersResponse:
+  response.CreateTigerSightingResponse:
+    properties:
+      id:
+        type: integer
+      image:
+        example: base64 encoded image string
+        type: string
+      latitude:
+        example: 1.1
+        type: number
+      longitude:
+        example: 10.2
+        type: number
+      tiger_id:
+        example: 1
+        type: integer
+      timestamp:
+        example: 1691354650
+        type: integer
+    type: object
+  response.CreateUserHandlerResponse:
+    properties:
+      payload:
+        $ref: '#/definitions/response.CreateUserResponse'
+      success:
+        example: true
+        type: boolean
+    type: object
+  response.CreateUserResponse:
+    properties:
+      email:
+        example: user@gmail.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      username:
+        example: username
+        type: string
+    type: object
+  response.ListAllTigersHandlerResponse:
+    properties:
+      payload:
+        $ref: '#/definitions/response.ListAllTigersResponse'
+      success:
+        example: true
+        type: boolean
+    type: object
+  response.ListAllTigersResponse:
     properties:
       tigers:
         items:
-          $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.TigerResponse'
+          $ref: '#/definitions/response.TigerResponse'
         type: array
     type: object
-  github_com_sourava_tiger_business_tiger_response.TigerResponse:
+  response.LoginHandlerResponse:
+    properties:
+      payload:
+        $ref: '#/definitions/response.LoginResponse'
+      success:
+        example: true
+        type: boolean
+    type: object
+  response.LoginResponse:
+    properties:
+      token:
+        example: jwt.token
+        type: string
+    type: object
+  response.TigerResponse:
     properties:
       Last_seen_longitude:
         example: 10.2
@@ -103,39 +179,7 @@ definitions:
         example: 1
         type: integer
     type: object
-  github_com_sourava_tiger_business_user_request.CreateUserRequest:
-    properties:
-      email:
-        example: user@gmail.com
-        type: string
-      password:
-        example: password
-        type: string
-      username:
-        example: username
-        type: string
-    type: object
-  github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse:
-    properties:
-      payload:
-        $ref: '#/definitions/github_com_sourava_tiger_business_user_response.CreateUserResponse'
-      success:
-        example: true
-        type: boolean
-    type: object
-  github_com_sourava_tiger_business_user_response.CreateUserResponse:
-    properties:
-      email:
-        example: user@gmail.com
-        type: string
-      id:
-        example: 1
-        type: integer
-      username:
-        example: username
-        type: string
-    type: object
-  github_com_sourava_tiger_external_utils.HandlerErrorResponse:
+  utils.HandlerErrorResponse:
     properties:
       error:
         example: Something went wrong
@@ -161,22 +205,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_sourava_tiger_business_auth_request.LoginRequest'
+          $ref: '#/definitions/request.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_business_auth_response.LoginHandlerResponse'
+            $ref: '#/definitions/response.LoginHandlerResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
       summary: login api
   /tigers:
     get:
@@ -200,15 +244,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse'
+            $ref: '#/definitions/response.ListAllTigersHandlerResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
       summary: list all tigers api
     post:
       consumes:
@@ -225,24 +269,24 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_sourava_tiger_business_tiger_request.CreateTigerRequest'
+          $ref: '#/definitions/request.CreateTigerRequest'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse'
+            $ref: '#/definitions/response.CreateTigerHandlerResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
       summary: create tiger api
-  /tigers/:tigerID/sightings:
+  /tigers/:id/sightings:
     get:
       consumes:
       - application/json
@@ -269,16 +313,53 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse'
+            $ref: '#/definitions/response.ListAllTigersHandlerResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
       summary: list all tiger sightings api
+    post:
+      consumes:
+      - application/json
+      description: creates a tiger sighting.
+      parameters:
+      - description: token received in login api response
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tiger ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: create tiger sighting request body params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTigerSightingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.CreateTigerSightingHandlerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HandlerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HandlerErrorResponse'
+      summary: create tiger sighting api
   /users:
     post:
       consumes:
@@ -295,22 +376,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_sourava_tiger_business_user_request.CreateUserRequest'
+          $ref: '#/definitions/request.CreateUserRequest'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse'
+            $ref: '#/definitions/response.CreateUserHandlerResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+            $ref: '#/definitions/utils.HandlerErrorResponse'
       summary: create user api
 schemes:
 - http
