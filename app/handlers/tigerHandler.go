@@ -54,7 +54,7 @@ func (h *TigerHandler) CreateTiger(context *gin.Context) {
 		return
 	}
 
-	utils.ReturnSuccessResponse(context, createdTiger)
+	utils.ReturnSuccessWithStatusCreated(context, createdTiger)
 	return
 }
 

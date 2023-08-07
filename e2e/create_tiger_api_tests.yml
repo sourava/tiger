@@ -1,0 +1,95 @@
+name: CreateTiger
+
+vars:
+  url: http://tigerhall-service-e2e:8081/api
+
+testcases:
+  - name: Setup
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "superuser@tigerhall.com", "password": "password"}
+        vars:
+          token1:
+            from: result.bodyjson.payload.token
+
+  - name: Request with valid tiger name, date of birth, latitude, longitude and timestamp should be able to create a new tiger
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "ct tiger1", "date_of_birth": "2020-01-01", "last_seen_timestamp": 0, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 201
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload.name ShouldEqual "ct tiger1"
+  - name: Request with empty tiger name should get request contains empty name or date of birth error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "", "date_of_birth": "2020-01-01", "last_seen_timestamp": 0, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains empty name or date of birth"
+  - name: Request with empty tiger date of birth should get request contains empty name or date of birth error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "ct tiger1", "date_of_birth": "", "last_seen_timestamp": 0, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains empty name or date of birth"
+  - name: Request with invalid tiger date of birth should get request contains invalid date of birth error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "ct tiger1", "date_of_birth": "2020", "last_seen_timestamp": 0, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid date of birth, format = YYYY-MM-DD"
+  - name: Request with invalid tiger date of birth should get request contains invalid latitude error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "ct tiger1", "date_of_birth": "2020-01-01", "last_seen_timestamp": 0, "last_seen_latitude": -99, "last_seen_longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid latitude"
+  - name: Request with invalid tiger date of birth should get request contains invalid longitude error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "ct tiger1", "date_of_birth": "2020-01-01", "last_seen_timestamp": 0, "last_seen_latitude": 0, "last_seen_longitude": -189}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid longitude"
