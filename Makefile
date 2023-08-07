@@ -10,6 +10,7 @@ up:
 	@make logs
 
 e2e-tests:
+	@mkdir -p e2e-results
 	docker-compose -f docker-compose-e2e.yml down -v
 	@make build
 	docker-compose -f docker-compose-e2e.yml up -d

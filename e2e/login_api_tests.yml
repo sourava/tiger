@@ -1,0 +1,39 @@
+name: Login
+
+vars:
+  url: http://tigerhall-service-e2e:8081/api
+
+testcases:
+  - name: User with valid email and password combination should be able to login
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "superuser@tigerhall.com", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload ShouldContainKey token
+  - name: User with invalid email password combination should get email and password combination mismatch error
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "superuser@tigerhall.com", "password": "password1"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error email and password combination mismatch"
+  - name: User with invalid email should get request contains invalid email error
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "invalidemail", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid email"

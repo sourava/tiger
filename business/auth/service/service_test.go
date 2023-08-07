@@ -27,6 +27,21 @@ func setupTests(t *testing.T) (*gorm.DB, func(t *testing.T)) {
 	}
 }
 
+func Test_WhenLoginRequestContainsInvalidEmailAddress_ThenReturnErrInvalidEmail(t *testing.T) {
+	gormDB, teardownTestCase := setupTests(t)
+	defer teardownTestCase(t)
+
+	authService := NewAuthService(gormDB, "private_key")
+	loginRequest := &request.LoginRequest{
+		Email:    "invalidemail",
+		Password: "password",
+	}
+	_, err := authService.Login(loginRequest)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "error request contains invalid email", err.Error())
+}
+
 func Test_WhenLoginRequestContainsEmailThatIsNotRegistered_ThenReturnErrEmailPasswordMismatch(t *testing.T) {
 	gormDB, teardownTestCase := setupTests(t)
 	defer teardownTestCase(t)

@@ -34,6 +34,8 @@ services:
       - MYSQL_ROOT_PASSWORD=password
     networks:
       - tigerhall
+    volumes:
+      - tigerhall-db:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       timeout: 10s
@@ -43,3 +45,6 @@ networks:
   tigerhall:
     name: tigerhall-test
     driver: bridge
+
+volumes:
+  tigerhall-db:

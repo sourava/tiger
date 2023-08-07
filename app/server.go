@@ -49,7 +49,7 @@ func initRouter(db *gorm.DB, tigerSightingNotificationChannel chan<- *request.Se
 		api.GET("/tiger/:tigerID/sightings", tigerHandler.ListAllTigerSightings)
 		secured := api.Use(middlewares.Auth(jwtSecret))
 		{
-			secured.POST("/user", userHandler.CreateUser)
+			secured.POST("/users", userHandler.CreateUser)
 			secured.POST("/tiger", tigerHandler.CreateTiger)
 			secured.POST("/tiger/:tigerID/sighting", tigerHandler.CreateTigerSighting)
 		}

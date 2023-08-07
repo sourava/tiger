@@ -1,0 +1,123 @@
+name: CreateUser
+
+vars:
+  url: http://tigerhall-service-e2e:8081/api
+
+testcases:
+  - name: Login
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "superuser@tigerhall.com", "password": "password"}
+        vars:
+          token:
+            from: result.bodyjson.payload.token
+
+  - name: User with valid username, email and password should be able to create a new user
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "User2", "email": "user2@tigerhall.com", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 201
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload.username ShouldEqual "User2"
+          - result.bodyjson.payload.email ShouldEqual "user2@tigerhall.com"
+          - result.bodyjson.payload ShouldNotContainKey password
+  - name: User with empty username should get request contains empty username, email or password error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "", "email": "user2@tigerhall.com", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains empty username, email or password"
+  - name: User with empty email should get request contains empty username, email or password error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "User2", "email": "", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains empty username, email or password"
+  - name: User with empty password should get request contains empty username, email or password error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "User2", "email": "user2@tigerhall.com", "password": ""}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains empty username, email or password"
+  - name: User with invalid email should get request contains invalid email error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "User2", "email": "invalidemail", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid email"
+  - name: User with invalid email should get request contains invalid email error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "User2", "email": "invalidemail", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid email"
+  - name: User with username that already exists should get error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "User2", "email": "user3@tigerhall.com", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldContainSubstring "Duplicate entry 'User2' for key 'users.username'"
+  - name: User with email that already exists should get error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Login.token}}"
+        url: {{.url}}/users
+        body: |
+          {"username": "User3", "email": "user2@tigerhall.com", "password": "password"}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldContainSubstring "Duplicate entry 'user2@tigerhall.com' for key 'users.email'"

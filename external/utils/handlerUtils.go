@@ -30,6 +30,11 @@ func ReturnSuccessResponse(context *gin.Context, data interface{}) {
 	context.JSON(http.StatusOK, data)
 }
 
+func ReturnSuccessWithStatusCreated(context *gin.Context, data interface{}) {
+	log.Info(data)
+	context.JSON(http.StatusCreated, data)
+}
+
 func ValidatePaginationQueryParams(context *gin.Context) (int, int, *customErrors.CustomError) {
 	pageStr, pageExists := context.GetQuery("page")
 	if !pageExists {

@@ -47,6 +47,6 @@ func (h *UserHandler) CreateUser(context *gin.Context) {
 		return
 	}
 
-	utils.ReturnSuccessResponse(context, createUserResponse)
+	utils.ReturnSuccessWithStatusCreated(context, createUserResponse)
 	return
 }
