@@ -38,7 +38,7 @@ func ReturnSuccessWithStatusCreated(context *gin.Context, data interface{}) {
 func ValidatePaginationQueryParams(context *gin.Context) (int, int, *customErrors.CustomError) {
 	pageStr, pageExists := context.GetQuery("page")
 	if !pageExists {
-		return -1, -1, customErrors.NewWithMessage(http.StatusBadRequest, "page not found in query params")
+		return -1, -1, customErrors.NewWithMessage(http.StatusBadRequest, "error page not found in query params")
 	}
 
 	page, err := strconv.Atoi(pageStr)
@@ -48,7 +48,7 @@ func ValidatePaginationQueryParams(context *gin.Context) (int, int, *customError
 
 	pageSizeStr, pageSizeExists := context.GetQuery("pageSize")
 	if !pageSizeExists {
-		return -1, -1, customErrors.NewWithMessage(http.StatusBadRequest, "pageSize not found in query params")
+		return -1, -1, customErrors.NewWithMessage(http.StatusBadRequest, "error pageSize not found in query params")
 	}
 
 	pageSize, err := strconv.Atoi(pageSizeStr)

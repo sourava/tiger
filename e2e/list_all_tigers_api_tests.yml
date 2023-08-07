@@ -1,0 +1,129 @@
+name: ListAllTigers
+
+vars:
+  url: http://tigerhall-service-e2e:8081/api
+
+testcases:
+  - name: Setup
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "superuser@tigerhall.com", "password": "password"}
+        vars:
+          token1:
+            from: result.bodyjson.payload.token
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "lat tiger1", "date_of_birth": "2020-01-01", "last_seen_timestamp": 1691423085, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "lat tiger2", "date_of_birth": "2020-01-02", "last_seen_timestamp": 1691423095, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "lat tiger3", "date_of_birth": "2020-01-03", "last_seen_timestamp": 1691423065, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "lat tiger4", "date_of_birth": "2020-01-04", "last_seen_timestamp": 1691423185, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "lat tiger5", "date_of_birth": "2020-01-05", "last_seen_timestamp": 1691423105, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "lat tiger6", "date_of_birth": "2020-01-06", "last_seen_timestamp": 1691423125, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+
+  - name: Request with page 1 and pageSize 3 should get list of tigers sorted by last time the tiger was seen
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers?page=1&pageSize=3
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload.tigers.tigers0.name ShouldEqual "lat tiger4"
+          - result.bodyjson.payload.tigers.tigers1.name ShouldEqual "lat tiger6"
+          - result.bodyjson.payload.tigers.tigers2.name ShouldEqual "lat tiger5"
+  - name: Request with page 2 and pageSize 3 should get list of tigers sorted by last time the tiger was seen
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers?page=2&pageSize=3
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload.tigers.tigers0.name ShouldEqual "lat tiger2"
+          - result.bodyjson.payload.tigers.tigers1.name ShouldEqual "lat tiger1"
+          - result.bodyjson.payload.tigers.tigers2.name ShouldEqual "lat tiger3"
+  - name: Request without page query param should return page not found in query params error
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers?pageSize=3
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error page not found in query params"
+  - name: Request without pageSize query param should return page not found in query params error
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers?page=3
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error pageSize not found in query params"

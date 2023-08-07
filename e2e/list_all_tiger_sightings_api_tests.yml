@@ -1,0 +1,114 @@
+name: ListAllTigerSightings
+
+vars:
+  url: http://tigerhall-service-e2e:8081/api
+
+testcases:
+  - name: Setup
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "superuser@tigerhall.com", "password": "password"}
+        vars:
+          token1:
+            from: result.bodyjson.payload.token
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "lats tiger1", "date_of_birth": "2020-01-01", "last_seen_timestamp": 1691421085, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "timestamp": 1691421185, "latitude": 10, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "timestamp": 1691421285, "latitude": 20, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "timestamp": 1691421385, "latitude": 30, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "timestamp": 1691421485, "latitude": 40, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 201
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "timestamp": 1691421585, "latitude": 50, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 201
+
+  - name: Request with page 1 and pageSize 3 should get list of all tiger sightings sorted by last time the tiger sighting was reported
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings?page=1&pageSize=3
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload.tiger_sightings.tiger_sightings0.latitude ShouldEqual 50
+          - result.bodyjson.payload.tiger_sightings.tiger_sightings1.latitude ShouldEqual 40
+          - result.bodyjson.payload.tiger_sightings.tiger_sightings2.latitude ShouldEqual 30
+  - name: Request with page 2 and pageSize 3 should get list of all tiger sightings sorted by last time the tiger sighting was reported
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings?page=2&pageSize=3
+        assertions:
+          - result.statuscode ShouldEqual 200
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload.tiger_sightings.tiger_sightings0.latitude ShouldEqual 20
+          - result.bodyjson.payload.tiger_sightings.tiger_sightings1.latitude ShouldEqual 10
+          - result.bodyjson.payload.tiger_sightings.tiger_sightings2.latitude ShouldEqual 0
+  - name: Request without page query param should return page not found in query params error
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings?pageSize=3
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error page not found in query params"
+  - name: Request without pageSize query param should return page not found in query params error
+    steps:
+      - type: http
+        method: GET
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings?page=3
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error pageSize not found in query params"

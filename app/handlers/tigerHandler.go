@@ -30,7 +30,7 @@ func NewTigerHandler(tigerService *service.TigerService) *TigerHandler {
 // @Produce      json
 // @Param      	 Authorization  header string					  true "token received in login api response"
 // @Param      	 request 		body   request.CreateTigerRequest true "create tiger request body params"
-// @Success      200  {object}  response.CreateTigerHandlerResponse
+// @Success      201  {object}  response.CreateTigerHandlerResponse
 // @Failure      400  {object} 	utils.HandlerErrorResponse
 // @Failure      500  {object}  utils.HandlerErrorResponse
 // @Router       /tigers [post]
@@ -65,7 +65,7 @@ func (h *TigerHandler) CreateTiger(context *gin.Context) {
 // @Produce      json
 // @Param 		 page   	query int true "Page"
 // @Param 		 pageSize 	query int true "Page Size"
-// @Success      201  {object}  response.ListAllTigersHandlerResponse
+// @Success      200  {object}  response.ListAllTigersHandlerResponse
 // @Failure      400  {object} 	utils.HandlerErrorResponse
 // @Failure      500  {object}  utils.HandlerErrorResponse
 // @Router       /tigers [get]
@@ -143,7 +143,7 @@ func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 // @Success      200  {object}  response.ListAllTigersHandlerResponse
 // @Failure      400  {object} 	utils.HandlerErrorResponse
 // @Failure      500  {object}  utils.HandlerErrorResponse
-// @Router       /tigers/:tigerID/sightings [get]
+// @Router       /tigers/:id/sightings [get]
 func (h *TigerHandler) ListAllTigerSightings(context *gin.Context) {
 	offset, pageSize, validationErr := utils.ValidatePaginationQueryParams(context)
 	if validationErr != nil {
@@ -151,7 +151,7 @@ func (h *TigerHandler) ListAllTigerSightings(context *gin.Context) {
 		return
 	}
 
-	tigerIDStr := context.Param("tigerID")
+	tigerIDStr := context.Param("id")
 	tigerID, err := strconv.Atoi(tigerIDStr)
 	if err != nil {
 		utils.ReturnError(context, customErrors.NewWithMessage(http.StatusBadRequest, "invalid tigerID"))
