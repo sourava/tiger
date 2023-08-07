@@ -1,5 +1,7 @@
 package response
 
+import "github.com/sourava/tiger/business/tiger/models"
+
 type TigerResponse struct {
 	ID                uint    `json:"id" example:"1"`
 	UserID            uint    `json:"user_id" example:"1"`
@@ -35,4 +37,31 @@ type ListAllTigerSightingsResponse struct {
 type ListAllTigerSightingsHandlerResponse struct {
 	Success bool                          `json:"success" example:"true"`
 	Payload ListAllTigerSightingsResponse `json:"payload"`
+}
+
+type CreateTigerResponse struct {
+	ID                uint    `json:"id" exmple:"1"`
+	Name              string  `json:"name" example:"tiger name"`
+	DateOfBirth       string  `json:"date_of_birth" example:"2020-01-13"`
+	LastSeenTimestamp int     `json:"last_seen_timestamp" example:"1691354650"`
+	LastSeenLatitude  float64 `json:"last_seen_latitude" example:"1.1"`
+	LastSeenLongitude float64 `json:"last_seen_longitude" example:"10.2"`
+}
+
+type CreateTigerHandlerResponse struct {
+	Success bool                `json:"success" example:"true"`
+	Payload CreateTigerResponse `json:"payload"`
+}
+
+func BuildCreateTigerHandlerResponse(tiger *models.Tiger) *CreateTigerHandlerResponse {
+	return &CreateTigerHandlerResponse{
+		Success: true,
+		Payload: CreateTigerResponse{
+			ID:                tiger.ID,
+			Name:              tiger.Name,
+			DateOfBirth:       tiger.DateOfBirth,
+			LastSeenLatitude:  tiger.LastSeenLatitude,
+			LastSeenLongitude: tiger.LastSeenLongitude,
+		},
+	}
 }

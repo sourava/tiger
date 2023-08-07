@@ -27,7 +27,7 @@ func NewTigerService(db *gorm.DB, tigerSightingNotificationChannel chan<- *reque
 	}
 }
 
-func (service *TigerService) CreateTiger(request *request.CreateTigerRequest, claims *request2.JWTClaim) (*models.Tiger, *customErrors.CustomError) {
+func (service *TigerService) CreateTiger(request *request.CreateTigerRequest, claims *request2.JWTClaim) (*response.CreateTigerHandlerResponse, *customErrors.CustomError) {
 	err := validations.ValidateCreateTigerRequest(request)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (service *TigerService) CreateTiger(request *request.CreateTigerRequest, cl
 		return nil, customErrors.NewWithErr(http.StatusInternalServerError, transactionErr)
 	}
 
-	return tiger, nil
+	return response.BuildCreateTigerHandlerResponse(tiger), nil
 }
 
 func (service *TigerService) ListAllTigers(request *request.ListAllTigerRequest) (*response.ListAllTigersHandlerResponse, *customErrors.CustomError) {

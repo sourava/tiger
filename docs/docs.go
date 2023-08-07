@@ -105,6 +105,54 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "creates a tiger.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create tiger api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token received in login api response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "create tiger request body params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_request.CreateTigerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/tigers/:tigerID/sightings": {
@@ -248,6 +296,66 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_sourava_tiger_business_tiger_request.CreateTigerRequest": {
+            "type": "object",
+            "properties": {
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "$ref": "#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerResponse"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "github_com_sourava_tiger_business_tiger_response.CreateTigerResponse": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "2020-01-13"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_seen_latitude": {
+                    "type": "number",
+                    "example": 1.1
+                },
+                "last_seen_longitude": {
+                    "type": "number",
+                    "example": 10.2
+                },
+                "last_seen_timestamp": {
+                    "type": "integer",
+                    "example": 1691354650
+                },
+                "name": {
+                    "type": "string",
+                    "example": "tiger name"
+                }
+            }
+        },
         "github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse": {
             "type": "object",
             "properties": {
@@ -308,13 +416,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "user@gmail.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "password"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "username"
                 }
             }
         },

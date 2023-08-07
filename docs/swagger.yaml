@@ -23,6 +23,47 @@ definitions:
         example: jwt.token
         type: string
     type: object
+  github_com_sourava_tiger_business_tiger_request.CreateTigerRequest:
+    properties:
+      dateOfBirth:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      timestamp:
+        type: integer
+    type: object
+  github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse:
+    properties:
+      payload:
+        $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerResponse'
+      success:
+        example: true
+        type: boolean
+    type: object
+  github_com_sourava_tiger_business_tiger_response.CreateTigerResponse:
+    properties:
+      date_of_birth:
+        example: "2020-01-13"
+        type: string
+      id:
+        type: integer
+      last_seen_latitude:
+        example: 1.1
+        type: number
+      last_seen_longitude:
+        example: 10.2
+        type: number
+      last_seen_timestamp:
+        example: 1691354650
+        type: integer
+      name:
+        example: tiger name
+        type: string
+    type: object
   github_com_sourava_tiger_business_tiger_response.ListAllTigersHandlerResponse:
     properties:
       payload:
@@ -65,10 +106,13 @@ definitions:
   github_com_sourava_tiger_business_user_request.CreateUserRequest:
     properties:
       email:
+        example: user@gmail.com
         type: string
       password:
+        example: password
         type: string
       username:
+        example: username
         type: string
     type: object
   github_com_sourava_tiger_business_user_response.CreateUserHandlerResponse:
@@ -166,6 +210,38 @@ paths:
           schema:
             $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
       summary: list all tigers api
+    post:
+      consumes:
+      - application/json
+      description: creates a tiger.
+      parameters:
+      - description: token received in login api response
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create tiger request body params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sourava_tiger_business_tiger_request.CreateTigerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_business_tiger_response.CreateTigerHandlerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_sourava_tiger_external_utils.HandlerErrorResponse'
+      summary: create tiger api
   /tigers/:tigerID/sightings:
     get:
       consumes:

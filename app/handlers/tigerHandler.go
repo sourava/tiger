@@ -23,6 +23,17 @@ func NewTigerHandler(tigerService *service.TigerService) *TigerHandler {
 	}
 }
 
+// CreateTiger godoc
+// @Summary      create tiger api
+// @Description  creates a tiger.
+// @Accept       json
+// @Produce      json
+// @Param      	 Authorization  header string					  true "token received in login api response"
+// @Param      	 request 		body   request.CreateTigerRequest true "create tiger request body params"
+// @Success      200  {object}  response.CreateTigerHandlerResponse
+// @Failure      400  {object} 	utils.HandlerErrorResponse
+// @Failure      500  {object}  utils.HandlerErrorResponse
+// @Router       /tigers [post]
 func (h *TigerHandler) CreateTiger(context *gin.Context) {
 	var createTigerRequest *request.CreateTigerRequest
 	err := context.ShouldBindBodyWith(&createTigerRequest, binding.JSON)

@@ -316,7 +316,7 @@ func Test_WhenCreateTigerSightingRequestIsValid_ThenShouldSaveTigerSightingInDB(
 
 	actualTigerSightingInDB := &models2.TigerSighting{}
 	gormDB.First(&actualTigerSightingInDB)
-	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
+	assert.Equal(t, tiger.Payload.ID, actualTigerSightingInDB.TigerID)
 }
 
 func Test_WhenTigerIDIsInvalidInListAllTigerSightingsRequest_ThenShouldReturnErr(t *testing.T) {
@@ -370,13 +370,13 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigerSightingsInCorrectOrd
 		Longitude: -180,
 		Timestamp: 9,
 	}
-	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest1, claims)
-	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest2, claims)
-	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest3, claims)
-	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest4, claims)
+	tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest1, claims)
+	tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest2, claims)
+	tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest3, claims)
+	tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest4, claims)
 
 	listAllTigerSightingsResponse, err := tigerService.ListAllSightingsForATiger(&request.ListAllTigerSightingsRequest{
-		TigerID:  int(tiger.ID),
+		TigerID:  int(tiger.Payload.ID),
 		Offset:   2,
 		PageSize: 2,
 	})
@@ -409,7 +409,7 @@ func Test_WhenCreateTigerIsValid_ThenShouldSaveTigerAndTigerSightingInDB(t *test
 
 	actualTigerSightingInDB := &models2.TigerSighting{}
 	gormDB.First(&actualTigerSightingInDB)
-	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
+	assert.Equal(t, tiger.Payload.ID, actualTigerSightingInDB.TigerID)
 }
 
 func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTigerInDB(t *testing.T) {
@@ -426,8 +426,8 @@ func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTig
 	}
 	tiger, err := tigerService.CreateTiger(createTigerRequest, claims)
 	assert.Nil(t, err)
-	assert.Equal(t, float64(-90), tiger.LastSeenLatitude)
-	assert.Equal(t, float64(-180), tiger.LastSeenLongitude)
+	assert.Equal(t, float64(-90), tiger.Payload.LastSeenLatitude)
+	assert.Equal(t, float64(-180), tiger.Payload.LastSeenLongitude)
 
 	createTigerSightingRequest := &request.CreateTigerSightingRequest{
 		Latitude:  0,
@@ -435,7 +435,7 @@ func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTig
 		Timestamp: 20,
 		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 	}
-	tigerSighting, err := tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest, claims)
+	tigerSighting, err := tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest, claims)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, tigerSighting)
@@ -447,7 +447,7 @@ func Test_WhenCreateTigerSightingIsValid_ThenShouldSaveTigerSightingAndUpdateTig
 
 	actualTigerSightingInDB := &models2.TigerSighting{}
 	gormDB.First(&actualTigerSightingInDB)
-	assert.Equal(t, tiger.ID, actualTigerSightingInDB.TigerID)
+	assert.Equal(t, tiger.Payload.ID, actualTigerSightingInDB.TigerID)
 }
 
 func Test_WhenCreateTigerSightingIsValidButTigerWithin5KM_ThenShouldReturnErrTigerWithin5KM(t *testing.T) {
@@ -469,7 +469,7 @@ func Test_WhenCreateTigerSightingIsValidButTigerWithin5KM_ThenShouldReturnErrTig
 		Timestamp: 20,
 		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 	}
-	_, err := tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest, claims)
+	_, err := tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest, claims)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "error tiger within 5km from last seen location", err.Error())
@@ -494,21 +494,21 @@ func Test_WhenCreateTigerSightingIsCalled_ThenShouldSendNotificationToAllReporte
 		Timestamp: 20,
 		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 	}
-	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest1, claims)
+	tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest1, claims)
 	createTigerSightingRequest2 := &request.CreateTigerSightingRequest{
 		Latitude:  0.26,
 		Longitude: 0,
 		Timestamp: 21,
 		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 	}
-	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest2, claims2)
+	tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest2, claims2)
 	createTigerSightingRequest3 := &request.CreateTigerSightingRequest{
 		Latitude:  0.36,
 		Longitude: 0,
 		Timestamp: 22,
 		Image:     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
 	}
-	tigerService.CreateTigerSighting(tiger.ID, createTigerSightingRequest3, claims3)
+	tigerService.CreateTigerSighting(tiger.Payload.ID, createTigerSightingRequest3, claims3)
 
 	for i := 1; i <= 3; i++ {
 		select {
