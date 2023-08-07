@@ -51,7 +51,7 @@ func initRouter(db *gorm.DB, tigerSightingNotificationChannel chan<- *request.Se
 		{
 			secured.POST("/users", userHandler.CreateUser)
 			secured.POST("/tigers", tigerHandler.CreateTiger)
-			secured.POST("/tiger/:tigerID/sighting", tigerHandler.CreateTigerSighting)
+			secured.POST("/tigers/:id/sightings", tigerHandler.CreateTigerSighting)
 		}
 	}
 	return router

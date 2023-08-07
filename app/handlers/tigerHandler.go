@@ -65,7 +65,7 @@ func (h *TigerHandler) CreateTiger(context *gin.Context) {
 // @Produce      json
 // @Param 		 page   	query int true "Page"
 // @Param 		 pageSize 	query int true "Page Size"
-// @Success      200  {object}  response.ListAllTigersHandlerResponse
+// @Success      201  {object}  response.ListAllTigersHandlerResponse
 // @Failure      400  {object} 	utils.HandlerErrorResponse
 // @Failure      500  {object}  utils.HandlerErrorResponse
 // @Router       /tigers [get]
@@ -95,12 +95,12 @@ func (h *TigerHandler) ListAllTigers(context *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param      	 Authorization  header string					  			true "token received in login api response"
-// @Param 		 tigerID 		path   int 									true "Tiger ID"
+// @Param 		 id 		    path   int 									true "Tiger ID"
 // @Param      	 request 		body   request.CreateTigerSightingRequest 	true "create tiger sighting request body params"
-// @Success      200  {object}  response.CreateTigerSightingHandlerResponse
+// @Success      201  {object}  response.CreateTigerSightingHandlerResponse
 // @Failure      400  {object} 	utils.HandlerErrorResponse
 // @Failure      500  {object}  utils.HandlerErrorResponse
-// @Router       /tigers/:tigerID/sightings [post]
+// @Router       /tigers/:id/sightings [post]
 func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 	var createTigerSightingRequest *request.CreateTigerSightingRequest
 	err := context.ShouldBindBodyWith(&createTigerSightingRequest, binding.JSON)
@@ -109,7 +109,7 @@ func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 		return
 	}
 
-	tigerIDStr := context.Param("tigerID")
+	tigerIDStr := context.Param("id")
 	tigerID, err := strconv.Atoi(tigerIDStr)
 	if err != nil {
 		utils.ReturnError(context, customErrors.NewWithMessage(http.StatusBadRequest, "invalid tigerID"))
@@ -128,7 +128,7 @@ func (h *TigerHandler) CreateTigerSighting(context *gin.Context) {
 		return
 	}
 
-	utils.ReturnSuccessResponse(context, createdTigerSighting)
+	utils.ReturnSuccessWithStatusCreated(context, createdTigerSighting)
 	return
 }
 

@@ -1,0 +1,108 @@
+name: CreateTigerSighting
+
+vars:
+  url: http://tigerhall-service-e2e:8081/api
+
+testcases:
+  - name: Setup
+    steps:
+      - type: http
+        method: POST
+        url: {{.url}}/login
+        body: |
+          {"email": "superuser@tigerhall.com", "password": "password"}
+        vars:
+          token1:
+            from: result.bodyjson.payload.token
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers
+        body: |
+          {"name": "cts tiger1", "date_of_birth": "2020-01-01", "last_seen_timestamp": 0, "last_seen_latitude": 0, "last_seen_longitude": 0}
+        vars:
+          tiger1ID:
+            from: result.bodyjson.payload.id
+        assertions:
+          - result.statuscode ShouldEqual 201
+          - result.bodyjson.success ShouldEqual true
+          - result.bodyjson.payload.name ShouldEqual "cts tiger1"
+
+  - name: Request with valid image, latitude, longitude and timestamp should be able to create a new tiger sighting
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "timestamp": 1, "latitude": 10, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 201
+          - result.bodyjson.success ShouldEqual true
+  - name: Request with position within 5km of last seen location of tiger should return tiger within 5km from last seen location error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "timestamp": 2, "latitude": 10, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error tiger within 5km from last seen location"
+  - name: Request with invalid base64 image string should get error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "image", "timestamp": 0, "latitude": 0, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "illegal base64 data at input byte 4"
+  - name: Request with empty image should get request contains empty image base64 string error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "", "timestamp": 0, "latitude": 0, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains empty image base64 string"
+  - name: Request with invalid latitude should get request contains invalid latitude error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "image", "timestamp": 0, "latitude": 99, "longitude": 0}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid latitude"
+  - name: Request with invalid longitude should get request contains invalid longitude error
+    steps:
+      - type: http
+        method: POST
+        headers:
+          Authorization: "{{.Setup.token1}}"
+        url: {{.url}}/tigers/{{.Setup.tiger1ID}}/sightings
+        body: |
+          {"image": "image", "timestamp": 0, "latitude": 0, "longitude": 181}
+        assertions:
+          - result.statuscode ShouldEqual 400
+          - result.bodyjson.success ShouldEqual false
+          - result.bodyjson.error ShouldEqual "error request contains invalid longitude"

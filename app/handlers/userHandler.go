@@ -29,7 +29,7 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 // @Produce      json
 // @Param      	 Authorization  header string					 true "token received in login api response"
 // @Param      	 request 		body   request.CreateUserRequest true "create user request body params"
-// @Success      200  {object}  response.CreateUserHandlerResponse
+// @Success      201  {object}  response.CreateUserHandlerResponse
 // @Failure      400  {object} 	utils.HandlerErrorResponse
 // @Failure      500  {object}  utils.HandlerErrorResponse
 // @Router       /users [post]

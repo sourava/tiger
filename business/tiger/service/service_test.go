@@ -222,7 +222,7 @@ func Test_WhenOffsetIs2AndPageSizeIs2_ThenShouldReturnTigersInCorrectOrder(t *te
 	assert.Equal(t, "tiger2", listAllTigersResponse.Payload.Tigers[1].Name)
 }
 
-func Test_WhenCreateTigerSightingRequestContainsEmptyImageBlob_ThenReturnErrEmptyImageBlob(t *testing.T) {
+func Test_WhenCreateTigerSightingRequestContainsEmptyImageBase64String_ThenReturnErrEmptyImageBase64String(t *testing.T) {
 	gormDB, tigerSightingNotificationChannel, teardownTestCase := setupTests()
 	defer teardownTestCase(t)
 
@@ -236,7 +236,7 @@ func Test_WhenCreateTigerSightingRequestContainsEmptyImageBlob_ThenReturnErrEmpt
 	_, err := tigerService.CreateTigerSighting(1, createTigerSightingRequest, claims)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "error request contains empty image blob", err.Error())
+	assert.Equal(t, "error request contains empty image base64 string", err.Error())
 }
 
 func Test_WhenCreateTigerSightingRequestContainsInvalidLatitude_ThenReturnErrInvalidLatitude(t *testing.T) {

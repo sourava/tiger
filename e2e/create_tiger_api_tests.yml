@@ -67,7 +67,7 @@ testcases:
           - result.statuscode ShouldEqual 400
           - result.bodyjson.success ShouldEqual false
           - result.bodyjson.error ShouldEqual "error request contains invalid date of birth, format = YYYY-MM-DD"
-  - name: Request with invalid tiger date of birth should get request contains invalid latitude error
+  - name: Request with invalid latitude should get request contains invalid latitude error
     steps:
       - type: http
         method: POST
@@ -80,7 +80,7 @@ testcases:
           - result.statuscode ShouldEqual 400
           - result.bodyjson.success ShouldEqual false
           - result.bodyjson.error ShouldEqual "error request contains invalid latitude"
-  - name: Request with invalid tiger date of birth should get request contains invalid longitude error
+  - name: Request with invalid longitude should get request contains invalid longitude error
     steps:
       - type: http
         method: POST

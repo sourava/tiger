@@ -23,7 +23,7 @@ func ValidateCreateTigerRequest(tigerRequest *request.CreateTigerRequest) *custo
 
 func ValidateCreateTigerSightingRequest(tigerSightingRequest *request.CreateTigerSightingRequest) *customErrors.CustomError {
 	if tigerSightingRequest.Image == "" {
-		return constants.ErrEmptyImageBlob
+		return constants.ErrEmptyImageBase64String
 	} else if !ValidateLatitude(tigerSightingRequest.Latitude) {
 		return constants.ErrInvalidLatitude
 	} else if !ValidateLongitude(tigerSightingRequest.Longitude) {
